@@ -26,37 +26,23 @@ export class UsuarioRepository{
         return this.ListaUsuarios.find (Usuario => Usuario.cpf === cpf);
       }
 
-      atualizarUsuarioporCPF (cpf:string, nome?: string, CursoID?:number, CatUsuID?:number) : Usuario | undefined {
-
-        const usuario = this.filtrarUsuarioporCPF(cpf);
-        
-        if (usuario){
-
-            if(nome) {
-                usuario.nome = nome;
-            }
-
-            if(CursoID){
-                usuario.CursoID = CursoID;
-            }
-
-            if(CatUsuID){
-                usuario.CatUsuID = CatUsuID;
-            }
-
-            return usuario;
-      }
-
-      return undefined;
+      atualizarUsuarioporCPF (usuarioAtualizado:Usuario) : Usuario | undefined {
+        const index = this.ListaUsuarios.findIndex (Usuario => Usuario.cpf === usuarioAtualizado.cpf)
+        if (index !== -1) {
+          this.ListaUsuarios[index] = usuarioAtualizado;
+          return this.ListaUsuarios[index];
+        }
+        return undefined;
     }
 
-    removerUsuarioporCPF(cpf: string): boolean {
-        const index = this.ListaUsuarios.findIndex(usuario => usuario.cpf === cpf);
+    removerUsuarioporCPF(cpf: string) : boolean {
+      const index = this.ListaUsuarios.findIndex (Usuario => Usuario.cpf === cpf);
+
         if (index !== -1) {
           
           this.ListaUsuarios.splice(index, 1);
-          return true;
+          return true
         }
-        return false;
+        return false
       }
 }
