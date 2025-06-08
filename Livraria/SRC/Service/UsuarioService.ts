@@ -22,9 +22,13 @@ export class UsuarioService{
         if(!nome || !cpf || !CursoID || !CatUsuID){
             throw new Error ("Informações incompletas");
         }
-        const novoUsuario = new Usuario (nome,cpf,CursoID,CatUsuID);
+
+        const status = "Ativo";
+
+        const novoUsuario = new Usuario (nome,cpf,status,CursoID,CatUsuID);
         this.UsuarioRepository.cadastrarUsuario(novoUsuario);
        
+        
         const nomeCurso = Curso.buscarNomePorID(CursoID);
         const nomeCategoria = CategoriaUsuario.buscarNomePorID(CatUsuID);
 
@@ -32,19 +36,48 @@ export class UsuarioService{
             id: novoUsuario.id,
             nome: novoUsuario.nome,
             cpf: novoUsuario.cpf,
-            status: novoUsuario.status = "Ativo",
+            status: novoUsuario.status,
             curso: nomeCurso,
             categoria: nomeCategoria
         };
     }
 
-    ConsultarUsuarios () : Usuario[]  {
-        return this.UsuarioRepository.listarUsuarios();
-    }
+    ConsultarUsuarios () : any[]  {
+        const usuarios = this.UsuarioRepository.listarUsuarios();
+        
+        return usuarios.map(usuario =>{
+            
+              const nomeCurso = Curso.buscarNomePorID(usuario.CursoID);
+              const nomeCategoria = CategoriaUsuario.buscarNomePorID(usuario.CatUsuID);
+          
+              return {
+                id: usuario.id,
+                nome: usuario.nome,
+                cpf: usuario.cpf,
+                status: usuario.status,
+                curso: nomeCurso,
+                categoria: nomeCategoria
+              };
+            });
+          }
 
-    ConsultarUsuarioPorCPF(CPF:any) : Usuario | undefined{
-        return this.UsuarioRepository.filtrarUsuarioporCPF(CPF)
-    }
+          ConsultarUsuarioPorCPF(CPF: any): any | undefined {
+            const usuario = this.UsuarioRepository.filtrarUsuarioporCPF(CPF);
+          
+            if (!usuario) return undefined;
+          
+            const nomeCurso = Curso.buscarNomePorID(usuario.CursoID);
+            const nomeCategoria = CategoriaUsuario.buscarNomePorID(usuario.CatUsuID);
+          
+            return {
+              id: usuario.id,
+              nome: usuario.nome,
+              cpf: usuario.cpf,
+              status: usuario.status,
+              curso: nomeCurso,
+              categoria: nomeCategoria
+            };
+          }
 
     AtualizarUsuarioPorCPF(CPF:any, nome?:string, CursoID?:number, CatUsuID?:number): Usuario | undefined{
         

@@ -11,10 +11,10 @@ function logInfo(){
     console.log(`API em execução na URL:  http://localhost:${PORT}`)
 }
 
-app.post("/Library", CadastrarUsuario);
-app.get('/Library', ConsultarUsuarios);
-app.get('/Library/:CPF', ConsultarUsuarioPorCPF);
-app.put('/Library/:CPF', AtualizarUsuarioPorCPF);
-app.delete('/Library/:CPF', RemoverUsuarioPorCPF);
+app.post("/Library/Usuario", CadastrarUsuario);
+app.get('/Library/Usuario', ConsultarUsuarios);
+app.get('/Library/Usuario/:CPF', ConsultarUsuarioPorCPF);
+app.put('/Library/Usuario/:CPF', AtualizarUsuarioPorCPF);
+app.delete('/Library/Usuario/:CPF', RemoverUsuarioPorCPF);
 
 app.listen(PORT, logInfo);
