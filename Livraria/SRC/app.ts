@@ -2,6 +2,7 @@ import express from 'express';
 
 import { CadastrarUsuario, ConsultarUsuarios, ConsultarUsuarioPorCPF, AtualizarUsuarioPorCPF, RemoverUsuarioPorCPF} from './Controller/UsuarioControler';
 import {ConsultarCategoriaLivro,ConsultarCurso,ConsultarCategoriaUsuario} from './Controller/CatalogoControler';
+import { atualizarLivroPorISBN, cadastrarLivro, ConsultarLivroPorISBN, listarLivros, removerLivroPorISBN } from './Controller/LivroControler';
 
 const app = express();
 
@@ -12,14 +13,20 @@ function logInfo(){
     console.log(`API em execução na URL:  http://localhost:${PORT}`)
 }
 
-app.post("/Library/Usuario/Cadastrar", CadastrarUsuario);
-app.get('/Library/Usuario/ConsultarTodos', ConsultarUsuarios);
-app.get('/Library/Usuario/Consultar/:CPF', ConsultarUsuarioPorCPF);
-app.put('/Library/Usuario/Atualizar/:CPF', AtualizarUsuarioPorCPF);
-app.delete('/Library/Usuario/Remover/:CPF', RemoverUsuarioPorCPF);
+app.post("/Library/usuarios/Cadastrar", CadastrarUsuario);
+app.get('/Library/usuarios/ConsultarTodos', ConsultarUsuarios);
+app.get('/Library/usuarios/Consultar/:CPF', ConsultarUsuarioPorCPF);
+app.put('/Library/usuarios/Atualizar/:CPF', AtualizarUsuarioPorCPF);
+app.delete('/Library/usuarios/Remover/:CPF', RemoverUsuarioPorCPF);
 
-app.get('/Library/Catalogo/CategoriaLivro', ConsultarCategoriaLivro);
-app.get('/Library/Catalogo/CategoriaUsuario', ConsultarCategoriaUsuario);
-app.get('/Library/Catalogo/CategoriaCurso', ConsultarCurso);
+app.get('/Library/catalogos/CategoriaLivro', ConsultarCategoriaLivro);
+app.get('/Library/catalogos/CategoriaUsuario', ConsultarCategoriaUsuario);
+app.get('/Library/catalogos/CategoriaCurso', ConsultarCurso);
+
+app.post("/Library/livros/Cadastrar", cadastrarLivro);
+app.get('/Library/livros/ListarTodos', listarLivros);
+app.get('/Library/livros/Consultar/:ISBN', ConsultarLivroPorISBN);
+app.put('/Library/livros/Atualizar/:ISBN', atualizarLivroPorISBN);
+app.delete('/Library/livros/Remover/:ISBN', removerLivroPorISBN);
 
 app.listen(PORT, logInfo);
