@@ -1,7 +1,7 @@
 import { CategoriaUsuario } from "../Model/CategoriaUsuario";
 import { Curso } from "../Model/Curso";
 import { Usuario } from "../Model/Usuario";
-import { UsuarioRepository } from "../Repository/UsuarioRepositoty";
+import { UsuarioRepository } from "../Repository/UsuarioRepository";
 
 
 type UsuarioResposta = {
