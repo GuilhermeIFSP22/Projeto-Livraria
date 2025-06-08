@@ -9,7 +9,7 @@ export class Emprestimo{
      data_emprestimo : Date;
      data_devolucao : Date;
      data_entrega : Date;
-     dias_atraso : Date;
+     dias_atraso : number;
      suspensao_ate : Date;
      UsuarioID : number;
      EstoqueID: number;
@@ -21,7 +21,7 @@ export class Emprestimo{
          this.EstoqueID = EstoqueID;
          this.data_devolucao = new Date(0);
          this.data_entrega = new Date(0);
-         this.dias_atraso = new Date(0);
+         this.dias_atraso = 0;
          this.suspensao_ate = new Date(0);
          
      }

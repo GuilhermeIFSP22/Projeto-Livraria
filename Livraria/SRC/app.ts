@@ -3,7 +3,8 @@ import express from 'express';
 import { CadastrarUsuario, ConsultarUsuarios, ConsultarUsuarioPorCPF, AtualizarUsuarioPorCPF, RemoverUsuarioPorCPF} from './Controller/UsuarioControler';
 import {ConsultarCategoriaLivro,ConsultarCurso,ConsultarCategoriaUsuario} from './Controller/CatalogoControler';
 import { atualizarLivroPorISBN, cadastrarLivro, ConsultarLivroPorISBN, listarLivros, removerLivroPorISBN } from './Controller/LivroControler';
-import {cadastrarEstoque, listarEstoqueDisponivel, ConsultarExemplarPorCodigo, atualizarDispoPorCodigo, RemoverExemplarPorCodigo} from './Controller/EstoqueControler'
+import {cadastrarEstoque, listarEstoqueDisponivel, ConsultarExemplarPorCodigo, atualizarDispoPorCodigo, RemoverExemplarPorCodigo} from './Controller/EstoqueControler';
+import {registrarEmprestimo, listarEmprestimos, registrarDevolucao} from './Controller/EmprestimoControler';
 
 const app = express();
 
@@ -35,5 +36,10 @@ app.get('/Library/estoque/ListarExemplaresDisponiveis', listarEstoqueDisponivel)
 app.get('/Library/estoque/ConsultarExemplar/:Codigo', ConsultarExemplarPorCodigo);
 app.put('/Library/estoque/AtualizarDisponibilidade/:Codigo', atualizarDispoPorCodigo);
 app.delete('/Library/estoque/RemoverExemplar/:Codigo', RemoverExemplarPorCodigo);
+
+app.post("/Library/emprestimos/RegistrarEmprestimo", registrarEmprestimo);
+app.get('/Library/emprestimos/ListarEmprestimos', listarEmprestimos);
+app.get('/Library/emprestimos/RegistrarDevolucao', registrarDevolucao);
+
 
 app.listen(PORT, logInfo);
