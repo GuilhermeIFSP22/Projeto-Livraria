@@ -13,6 +13,8 @@ export class CategoriaUsuario {
     }
 
     static inicializarCategoriaUsuario() {
+        
+        CategoriaUsuario.ultimoID = 0;
         CategoriaUsuario.listaCatUsu = [
           new CategoriaUsuario("Professor"),
           new CategoriaUsuario("Aluno"),

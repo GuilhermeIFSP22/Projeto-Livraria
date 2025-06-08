@@ -13,6 +13,7 @@ export class Curso {
     }
 
     static inicializarCursos() {
+        Curso.ultimoID = 0;
         Curso.listaCursos = [
           new Curso("ADS"),
           new Curso("Pedagogia"),

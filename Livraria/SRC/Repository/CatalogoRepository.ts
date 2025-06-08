@@ -9,9 +9,6 @@ Curso.inicializarCursos();
 export class CatalogoRepository{
     
     private static instance: CatalogoRepository | null = null;
-    private ListaCurso: Curso[] = [];
-    private ListaCategoriaLivro : CategoriaLivro[] = [];
-    private ListaCategoriaUsuario : CategoriaUsuario[] = [];
 
     private constructor() {}
 

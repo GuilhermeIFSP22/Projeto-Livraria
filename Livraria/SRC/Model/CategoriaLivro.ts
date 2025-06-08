@@ -13,6 +13,7 @@ export class CategoriaLivro {
     }
 
     static inicializarCategoriaLivro() {
+        CategoriaLivro.ultimoID = 0;
         CategoriaLivro.listaLivro = [
           new CategoriaLivro("Romance"),
           new CategoriaLivro("Computação"),
