@@ -3,6 +3,7 @@ import { Curso } from "../Model/Curso";
 import { Usuario } from "../Model/Usuario";
 import { UsuarioRepository } from "../Repository/UsuarioRepository";
 import { validarCPF } from "../untils/ValidarCPF";
+import { EmprestimoRepository } from "../Repository/EmprestimoRepository";
 
 type UsuarioResposta = {
     id: number;
@@ -16,6 +17,7 @@ type UsuarioResposta = {
 export class UsuarioService{
 
     UsuarioRepository : UsuarioRepository = UsuarioRepository.getInstance();
+    EmprestimoRepository : EmprestimoRepository = EmprestimoRepository.getInstance();
 
     CadastrarUsuario (UsuarioData:any) : UsuarioResposta {
         const {nome, cpf, CursoID, CatUsuID} = UsuarioData;
@@ -42,9 +44,7 @@ export class UsuarioService{
             throw new Error("Categoria de usuário inválida ou inexistente");
         }
 
-        const status = "Ativo";
-
-        const novoUsuario = new Usuario (nome,cpf,status,CursoID,CatUsuID);
+        const novoUsuario = new Usuario (nome,cpf,"ativo",CursoID,CatUsuID);
         this.UsuarioRepository.cadastrarUsuario(novoUsuario);
        
         return {
@@ -119,19 +119,30 @@ export class UsuarioService{
       return undefined;
     }
 
-    RemoverUsuarioPorCPF(CPF:string) :string{
+   RemoverUsuarioPorCPF(CPF: string): string {
+        const usuario = this.UsuarioRepository.filtrarUsuarioporCPF(CPF);
 
-            const usuario = this.UsuarioRepository.removerUsuarioporCPF(CPF);
-    
-            if (usuario) {
-                return "Usuário removido com sucesso";
-                
-            } else {
-                return "Usuário não encontrado";
-            }
+        if (!usuario) {
+            return "Usuário não encontrado";
+        }
+
+        // Verificar se usuário tem empréstimos ativos (sem data_entrega)
+        const emprestimosAtivos = this.EmprestimoRepository.listarEmprestimos()
+            .filter(e => e.UsuarioID === usuario.id && e.data_entrega.getTime() === 0);
+
+        if (emprestimosAtivos.length > 0) {
+            return "Usuário possui empréstimos ativos e não pode ser removido";
+        }
+
+        // Remove usuário
+        const removido = this.UsuarioRepository.removerUsuarioporCPF(CPF);
+
+        if (removido) {
+            return "Usuário removido com sucesso";
+        } else {
+            return "Falha ao remover usuário";
+        }
     }
-
-    
 }
 
 

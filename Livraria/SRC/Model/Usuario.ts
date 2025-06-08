@@ -11,11 +11,11 @@ export class Usuario{
     id: number;
     nome : string;
     cpf : string;
-    status : string;
+    status : "ativo" | "suspenso" | "inativo";
     CursoID : number;
     CatUsuID: number;
     
-    constructor(nome:string, cpf:string,status:string, CursoID:number, CatUsuID:number){
+    constructor(nome:string, cpf:string,status:"ativo" | "suspenso" | "inativo", CursoID:number, CatUsuID:number){
         this.nome = nome;
         this.cpf = cpf;
         this.status = status;

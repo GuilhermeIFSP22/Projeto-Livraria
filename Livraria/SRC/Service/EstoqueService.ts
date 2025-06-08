@@ -1,12 +1,14 @@
 import { Estoque } from "../Model/Estoque";
 import { EstoqueRepository } from "../Repository/EstoqueRepository";
 import { LivroRepository } from "../Repository/LivroRepository";
+import { EmprestimoRepository } from "../Repository/EmprestimoRepository";
 
 export class EstoqueService{
 
     EstoqueRepository : EstoqueRepository = EstoqueRepository.getInstance();
-    livroRepository = LivroRepository.getInstance();
-
+    livroRepository : LivroRepository = LivroRepository.getInstance();
+    emprestimoRepository : EmprestimoRepository = EmprestimoRepository.getInstance();
+    
     cadastrarEstoque(EstoqueData: any): Estoque {
         const { quantidade, quantidade_emprestada, CodigoExemplar, ISBN, disponivel } = EstoqueData;
 
@@ -63,13 +65,23 @@ export class EstoqueService{
 
     RemoverExemplarPorCodigo(CodigoExemplar:number) :string{
 
-            const Estoque = this.EstoqueRepository.removerUsuarioPorCodigo(CodigoExemplar)
-    
-            if (Estoque) {
-                return "Usuário removido com sucesso";
-                
-            } else {
-                return "Usuário não encontrado";
-            }
+             const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(CodigoExemplar);
+
+        if (!exemplar) {
+            return "Exemplar não encontrado";
+        }
+
+        const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
+            .some(e =>
+                e.EstoqueID === CodigoExemplar &&
+                (!e.data_entrega || e.data_entrega.getTime?.() === 0)
+            );
+
+        if (emprestimoAtivo) {
+            return "Não é possível remover o exemplar, ele está emprestado";
+        }
+        
+        const removido = this.EstoqueRepository.removerUsuarioPorCodigo(CodigoExemplar);
+        return removido ? "Exemplar removido com sucesso" : "Erro ao remover exemplar";
     }
 }

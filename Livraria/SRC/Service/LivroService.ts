@@ -1,6 +1,8 @@
 import { Livro } from "../Model/Livro";
 import { LivroRepository } from "../Repository/LivroRepository";
 import { CategoriaLivro } from "../Model/CategoriaLivro";
+import { EstoqueRepository } from "../Repository/EstoqueRepository";
+import { EmprestimoRepository } from "../Repository/EmprestimoRepository";
 
 type LivroResposta = {
     id : number;
@@ -16,11 +18,28 @@ type LivroResposta = {
 export class LivroService{
 
     LivroRepository : LivroRepository = LivroRepository.getInstance();
+    estoqueRepository: EstoqueRepository = EstoqueRepository.getInstance();
+    emprestimoRepository: EmprestimoRepository = EmprestimoRepository.getInstance();
 
         cadastrarLivro (LivroData:any) : LivroResposta {
             const {titulo, autor, editora, edicao,isbn, categoria} = LivroData;
             if(!titulo || !isbn || !autor || !editora || !edicao || !isbn || !categoria){
                 throw new Error ("Informações incompletas");
+            }
+
+            const livrosExistentes = this.LivroRepository.listarLivros();
+            const livroDuplicado = livrosExistentes.find(l =>
+                l.autor === autor && l.editora === editora && l.edicao === edicao
+            );
+
+            if (livroDuplicado) {
+                throw new Error("Já existe um livro cadastrado com essa combinação de autor, editora e edição.");
+            }
+
+            // Verifica se a categoria é válida
+            const nomeCategoria = CategoriaLivro.buscarNomePorID(categoria);
+            if (!nomeCategoria) {
+                throw new Error("Categoria inválida.");
             }
 
             const novoLivro = new Livro (titulo,autor,editora,edicao,isbn,categoria);
@@ -119,13 +138,33 @@ export class LivroService{
 
     RemoverLivroPorISBN(ISBN:string) :string{
 
-            const usuario = this.LivroRepository.removerLivroPorISBN(ISBN)
-    
-            if (usuario) {
-                return "Usuário removido com sucesso";
-                
-            } else {
-                return "Usuário não encontrado";
+        const livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
+            if (!livro) {
+                return "Livro não encontrado";
             }
-    }
+
+
+        const exemplar = this.estoqueRepository.listarEstoqueDisponivel()
+            .find(ex => ex.LivroID === livro.id);
+
+            if (!exemplar) {
+                const removido = this.LivroRepository.removerLivroPorISBN(ISBN);
+                return removido ? "Livro removido com sucesso" : "Livro não encontrado";
+            }
+ 
+        const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
+            .some(e => 
+                e.EstoqueID === exemplar.CodigoExemplar && 
+                (!e.data_entrega || e.data_entrega.getTime?.() === 0)
+            );
+
+            if (emprestimoAtivo) {
+                return "Não é possível remover o livro, o exemplar está emprestado";
+            }
+
+        this.estoqueRepository.removerUsuarioPorCodigo(exemplar.CodigoExemplar);
+        const removido = this.LivroRepository.removerLivroPorISBN(ISBN);
+
+        return removido ? "Livro removido com sucesso" : "Livro não encontrado";
+}
 }
