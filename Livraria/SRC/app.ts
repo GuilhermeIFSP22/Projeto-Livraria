@@ -3,6 +3,7 @@ import express from 'express';
 import { CadastrarUsuario, ConsultarUsuarios, ConsultarUsuarioPorCPF, AtualizarUsuarioPorCPF, RemoverUsuarioPorCPF} from './Controller/UsuarioControler';
 import {ConsultarCategoriaLivro,ConsultarCurso,ConsultarCategoriaUsuario} from './Controller/CatalogoControler';
 import { atualizarLivroPorISBN, cadastrarLivro, ConsultarLivroPorISBN, listarLivros, removerLivroPorISBN } from './Controller/LivroControler';
+import {cadastrarEstoque, listarEstoqueDisponivel, ConsultarExemplarPorCodigo, atualizarDispoPorCodigo, RemoverExemplarPorCodigo} from './Controller/EstoqueControler'
 
 const app = express();
 
@@ -28,5 +29,11 @@ app.get('/Library/livros/ListarTodos', listarLivros);
 app.get('/Library/livros/Consultar/:ISBN', ConsultarLivroPorISBN);
 app.put('/Library/livros/Atualizar/:ISBN', atualizarLivroPorISBN);
 app.delete('/Library/livros/Remover/:ISBN', removerLivroPorISBN);
+
+app.post("/Library/estoque/CadastrarExemplar", cadastrarEstoque);
+app.get('/Library/estoque/ListarExemplaresDisponiveis', listarEstoqueDisponivel);
+app.get('/Library/estoque/ConsultarExemplar/:Codigo', ConsultarExemplarPorCodigo);
+app.put('/Library/estoque/AtualizarDisponibilidade/:Codigo', atualizarDispoPorCodigo);
+app.delete('/Library/estoque/RemoverExemplar/:Codigo', RemoverExemplarPorCodigo);
 
 app.listen(PORT, logInfo);
