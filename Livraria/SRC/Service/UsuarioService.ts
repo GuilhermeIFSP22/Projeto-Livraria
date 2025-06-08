@@ -1,18 +1,41 @@
+import { CategoriaUsuario } from "../Model/CategoriaUsuario";
+import { Curso } from "../Model/Curso";
 import { Usuario } from "../Model/Usuario";
 import { UsuarioRepository } from "../Repository/UsuarioRepositoty";
+
+
+type UsuarioResposta = {
+    id: number;
+    nome: string;
+    cpf: string;
+    status: string;
+    curso: string;
+    categoria: String;
+};
 
 export class UsuarioService{
 
     UsuarioRepository : UsuarioRepository = UsuarioRepository.getInstance();
 
-    CadastrarUsuario (UsuarioData:any) : Usuario {
-        const {nome, cpf, status, CursoID, CatUsuID} = UsuarioData;
-        if(!nome || !cpf || !status || !CursoID || !CatUsuID){
+    CadastrarUsuario (UsuarioData:any) : UsuarioResposta {
+        const {nome, cpf, CursoID, CatUsuID} = UsuarioData;
+        if(!nome || !cpf || !CursoID || !CatUsuID){
             throw new Error ("Informações incompletas");
         }
-        const novoUsuario = new Usuario (nome,cpf,status,CursoID,CatUsuID);
+        const novoUsuario = new Usuario (nome,cpf,CursoID,CatUsuID);
         this.UsuarioRepository.cadastrarUsuario(novoUsuario);
-        return novoUsuario;
+       
+        const nomeCurso = Curso.buscarNomePorID(CursoID);
+        const nomeCategoria = CategoriaUsuario.buscarNomePorID(CatUsuID);
+
+        return {
+            id: novoUsuario.id,
+            nome: novoUsuario.nome,
+            cpf: novoUsuario.cpf,
+            status: novoUsuario.status = "Ativo",
+            curso: nomeCurso,
+            categoria: nomeCategoria
+        };
     }
 
     ConsultarUsuarios () : Usuario[]  {

@@ -1,6 +1,9 @@
 import { Curso } from "./Curso";
 import { CategoriaUsuario } from "./CategoriaUsuario";
 
+Curso.inicializarCursos();
+CategoriaUsuario.inicializarCategoriaUsuario();
+
 export class Usuario{
 
     private static ultimoID : number = 0;
@@ -12,7 +15,7 @@ export class Usuario{
     CursoID : number;
     CatUsuID: number;
     
-    constructor(nome:string, cpf:string, status:string, CursoID:number, CatUsuID:number){
+    constructor(nome:string, cpf:string, CursoID:number, CatUsuID:number){
         this.nome = nome;
         this.cpf = cpf;
         this.status = status;
@@ -23,4 +26,13 @@ export class Usuario{
     private static incrementarID(): number {
         return ++Usuario.ultimoID;
     }
+
+    getNomeCurso(): string {
+        return Curso.buscarNomePorID(this.CursoID);
+      }
+
+    getNomeCategoria(): string {
+        return CategoriaUsuario.buscarNomePorID(this.CatUsuID);
+      }
+ 
 }
