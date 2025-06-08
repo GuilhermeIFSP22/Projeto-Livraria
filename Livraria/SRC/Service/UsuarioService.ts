@@ -2,7 +2,7 @@ import { CategoriaUsuario } from "../Model/CategoriaUsuario";
 import { Curso } from "../Model/Curso";
 import { Usuario } from "../Model/Usuario";
 import { UsuarioRepository } from "../Repository/UsuarioRepository";
-
+import { validarCPF } from "../untils/ValidarCPF";
 
 type UsuarioResposta = {
     id: number;
@@ -23,15 +23,30 @@ export class UsuarioService{
             throw new Error ("Informações incompletas");
         }
 
+        if (!validarCPF(cpf)) {
+        throw new Error("CPF inválido");
+        }
+
+        const usuarioExistente = this.UsuarioRepository.filtrarUsuarioporCPF(cpf);
+        if (usuarioExistente) {
+        throw new Error("Já existe um usuário com este CPF");
+        }
+
+        const nomeCurso = Curso.buscarNomePorID(CursoID);
+        if (!nomeCurso) {
+            throw new Error("Curso inválido ou inexistente");
+        }
+
+        const nomeCategoria = CategoriaUsuario.buscarNomePorID(CatUsuID);
+        if (!nomeCategoria) {
+            throw new Error("Categoria de usuário inválida ou inexistente");
+        }
+
         const status = "Ativo";
 
         const novoUsuario = new Usuario (nome,cpf,status,CursoID,CatUsuID);
         this.UsuarioRepository.cadastrarUsuario(novoUsuario);
        
-        
-        const nomeCurso = Curso.buscarNomePorID(CursoID);
-        const nomeCategoria = CategoriaUsuario.buscarNomePorID(CatUsuID);
-
         return {
             id: novoUsuario.id,
             nome: novoUsuario.nome,
@@ -115,6 +130,8 @@ export class UsuarioService{
                 return "Usuário não encontrado";
             }
     }
+
+    
 }
 
 
