@@ -24,11 +24,11 @@ export class EstoqueRepository{
       }
 
       filtrarExemplarPorCodigo (CodigoExemplar:number) : Estoque | undefined {
-        return this.ListaEstoque.find (Estoque => Estoque.CodigoExemplar === CodigoExemplar);
+        return this.ListaEstoque.find (Estoque => Estoque.Codigo === CodigoExemplar);
       }
 
       atualizarDispoExemplarPorCodigo (CodigoExemplar:number, disponivel:boolean) : Estoque | undefined {
-        const index = this.ListaEstoque.findIndex (Estoque => Estoque.CodigoExemplar === CodigoExemplar)
+        const index = this.ListaEstoque.findIndex (Estoque => Estoque.Codigo === CodigoExemplar)
         if (index !== -1) {
           this.ListaEstoque[index].disponivel = disponivel;
           return this.ListaEstoque[index];
@@ -37,7 +37,7 @@ export class EstoqueRepository{
     }
 
     removerUsuarioPorCodigo(CodigoExemplar: number) : boolean {
-      const index = this.ListaEstoque.findIndex (Estoque => Estoque.CodigoExemplar === CodigoExemplar);
+      const index = this.ListaEstoque.findIndex (Estoque => Estoque.Codigo === CodigoExemplar);
 
         if (index !== -1) {
           

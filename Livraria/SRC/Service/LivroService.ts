@@ -36,7 +36,6 @@ export class LivroService{
                 throw new Error("Já existe um livro cadastrado com essa combinação de autor, editora e edição.");
             }
 
-            // Verifica se a categoria é válida
             const nomeCategoria = CategoriaLivro.buscarNomePorID(categoria);
             if (!nomeCategoria) {
                 throw new Error("Categoria inválida.");
@@ -105,8 +104,12 @@ export class LivroService{
 
     AtualizarLivroPorISBN(ISBN:any, titulo?:string, autor?:string, editora?:string, edicao?:string, CategoriaID?:number): Livro | undefined{
         
-        const Livro = this.LivroRepository.atualizarLivroPorISBN(ISBN);
+        const Livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
 
+        if (!Livro) {
+        console.log("Livro não encontrado");
+        return undefined;
+        }
         if (Livro){
 
             if(titulo) {
@@ -129,13 +132,9 @@ export class LivroService{
                 Livro.CategoriaID = CategoriaID;
             }
 
-            return this.LivroRepository.atualizarLivroPorISBN(ISBN);
-      }
-
-      console.log("Livro não encontrado");
-      return undefined;
+           return Livro;
+        }
     }
-
     RemoverLivroPorISBN(ISBN:string) :string{
 
         const livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
@@ -154,7 +153,7 @@ export class LivroService{
  
         const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
             .some(e => 
-                e.EstoqueID === exemplar.CodigoExemplar && 
+                e.EstoqueID === exemplar.Codigo && 
                 (!e.data_entrega || e.data_entrega.getTime?.() === 0)
             );
 
@@ -162,7 +161,7 @@ export class LivroService{
                 return "Não é possível remover o livro, o exemplar está emprestado";
             }
 
-        this.estoqueRepository.removerUsuarioPorCodigo(exemplar.CodigoExemplar);
+        this.estoqueRepository.removerUsuarioPorCodigo(exemplar.Codigo);
         const removido = this.LivroRepository.removerLivroPorISBN(ISBN);
 
         return removido ? "Livro removido com sucesso" : "Livro não encontrado";

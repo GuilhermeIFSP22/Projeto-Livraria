@@ -25,4 +25,9 @@ export class CategoriaUsuario {
             const CatUsu = CategoriaUsuario.listaCatUsu.find(usu => usu.id === id);
             return CatUsu ? CatUsu.nome : "Categoria de Usuário não encontrada";
           }
+
+        static buscarIDPorNome(nome: string): number | undefined {
+        const categoria = this.listaCatUsu.find(c => c.nome.toLowerCase() === nome.toLowerCase());
+        return categoria ? categoria.id : undefined;
+    }
 }

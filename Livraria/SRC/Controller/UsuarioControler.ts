@@ -13,7 +13,7 @@ export function CadastrarUsuario (req:Request, res:Response){
             }
         );
     }catch(error:any) {
-        res.status(400).json({mensagem: error.mensagem});
+        res.status(400).json({mensagem: error.message});
     }
 }
 

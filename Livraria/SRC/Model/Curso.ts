@@ -26,4 +26,9 @@ export class Curso {
     const curso = Curso.listaCursos.find(c => c.id === id);
     return curso ? curso.nome : "Curso não encontrado";
   }
+
+  static buscarIDPorNome(nome: string): number | undefined {
+        const curso = this.listaCursos.find(c => c.nome.toLowerCase() === nome.toLowerCase());
+        return curso ? curso.id : undefined;
+    }
 }

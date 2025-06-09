@@ -94,30 +94,47 @@ export class UsuarioService{
             };
           }
 
-    AtualizarUsuarioPorCPF(CPF:any, nome?:string, CursoID?:number, CatUsuID?:number): Usuario | undefined{
-        
-        const usuario = this.ConsultarUsuarioPorCPF(CPF)
+    AtualizarUsuarioPorCPF(CPF: any, nome?: string, cursoNome?: string, categoriaNome?: string): UsuarioResposta | undefined {
+        const usuario = this.UsuarioRepository.filtrarUsuarioporCPF(CPF);
 
-        if (usuario){
+        if (!usuario) {
+            console.log("Usuário não encontrado");
+            return undefined;
+        }
 
-            if(nome) {
-                usuario.nome = nome;
-            }
+        if (nome) {
+            usuario.nome = nome;
+        }
 
-            if(CursoID){
-                usuario.CursoID = CursoID;
-            }
+        if (cursoNome) {
+            const idCurso = Curso.buscarIDPorNome(cursoNome);
+            if (!idCurso) throw new Error("Curso inválido ou inexistente");
+            usuario.CursoID = idCurso;
+        }
 
-            if(CatUsuID){
-                usuario.CatUsuID = CatUsuID;
-            }
+        if (categoriaNome) {
+            const idCategoria = CategoriaUsuario.buscarIDPorNome(categoriaNome);
+            if (!idCategoria) throw new Error("Categoria de usuário inválida ou inexistente");
+            usuario.CatUsuID = idCategoria;
+        }
 
-            return this.UsuarioRepository.atualizarUsuarioporCPF(usuario);
-      }
+        const atualizado = this.UsuarioRepository.atualizarUsuarioporCPF(usuario);
 
-      console.log("Usuário não encontrado");
-      return undefined;
-    }
+        if (!atualizado) {
+        throw new Error("Falha ao atualizar o usuário");
+}
+        const nomeCurso = Curso.buscarNomePorID(atualizado.CursoID);
+        const nomeCategoria = CategoriaUsuario.buscarNomePorID(atualizado.CatUsuID);
+
+        return {
+            id: atualizado.id,
+            nome: atualizado.nome,
+            cpf: atualizado.cpf,
+            status: atualizado.status,
+            curso: nomeCurso,
+            categoria: nomeCategoria
+        };
+}
 
    RemoverUsuarioPorCPF(CPF: string): string {
         const usuario = this.UsuarioRepository.filtrarUsuarioporCPF(CPF);
@@ -126,7 +143,6 @@ export class UsuarioService{
             return "Usuário não encontrado";
         }
 
-        // Verificar se usuário tem empréstimos ativos (sem data_entrega)
         const emprestimosAtivos = this.EmprestimoRepository.listarEmprestimos()
             .filter(e => e.UsuarioID === usuario.id && e.data_entrega.getTime() === 0);
 
@@ -134,7 +150,6 @@ export class UsuarioService{
             return "Usuário possui empréstimos ativos e não pode ser removido";
         }
 
-        // Remove usuário
         const removido = this.UsuarioRepository.removerUsuarioporCPF(CPF);
 
         if (removido) {

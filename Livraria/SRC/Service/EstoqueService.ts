@@ -10,9 +10,9 @@ export class EstoqueService{
     emprestimoRepository : EmprestimoRepository = EmprestimoRepository.getInstance();
     
     cadastrarEstoque(EstoqueData: any): Estoque {
-        const { quantidade, quantidade_emprestada, CodigoExemplar, ISBN, disponivel } = EstoqueData;
+        const { quantidade, quantidade_emprestada, Codigo, ISBN, disponivel } = EstoqueData;
 
-        if (!ISBN || CodigoExemplar === undefined) {
+        if (!ISBN || Codigo === undefined) {
             throw new Error("Campos obrigatórios ausentes: ISBN do livro e código do exemplar");
         }
 
@@ -21,7 +21,7 @@ export class EstoqueService{
             throw new Error("Livro com o ISBN fornecido não encontrado");
         }
 
-        const exemplarExistente = this.EstoqueRepository.filtrarExemplarPorCodigo(CodigoExemplar);
+        const exemplarExistente = this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
         if (exemplarExistente) {
             throw new Error("Já existe um exemplar com esse código");
         }
@@ -29,7 +29,7 @@ export class EstoqueService{
         const novoEstoque = new Estoque(
             quantidade ?? 1,
             quantidade_emprestada ?? 0,
-            CodigoExemplar,
+            Codigo,
             livro.id
         );
 
@@ -46,13 +46,13 @@ export class EstoqueService{
     }
 
 
-    ConsultarExemplarPorCodigo(CodigoExemplar: any): any | undefined {
-        return this.EstoqueRepository.filtrarExemplarPorCodigo(CodigoExemplar);
+    ConsultarExemplarPorCodigo(Codigo: number): Estoque | undefined {
+        return this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
     }
 
-    AtualizarDispoPorCodigo(CodigoExemplar: number, disponivel: boolean): Estoque | undefined {
+    AtualizarDispoPorCodigo(Codigo: number, disponivel: boolean): Estoque | undefined {
 
-        const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(CodigoExemplar);
+        const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
         if (!exemplar) {
             console.log("Exemplar não encontrado");
             return undefined;
@@ -60,12 +60,12 @@ export class EstoqueService{
 
         exemplar.disponivel = disponivel;
 
-        return this.EstoqueRepository.atualizarDispoExemplarPorCodigo(CodigoExemplar, disponivel);
+        return this.EstoqueRepository.atualizarDispoExemplarPorCodigo(Codigo, disponivel);
     }
 
-    RemoverExemplarPorCodigo(CodigoExemplar:number) :string{
+    RemoverExemplarPorCodigo(Codigo:number) :string{
 
-             const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(CodigoExemplar);
+             const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
 
         if (!exemplar) {
             return "Exemplar não encontrado";
@@ -73,7 +73,7 @@ export class EstoqueService{
 
         const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
             .some(e =>
-                e.EstoqueID === CodigoExemplar &&
+                e.EstoqueID === Codigo &&
                 (!e.data_entrega || e.data_entrega.getTime?.() === 0)
             );
 
@@ -81,7 +81,7 @@ export class EstoqueService{
             return "Não é possível remover o exemplar, ele está emprestado";
         }
         
-        const removido = this.EstoqueRepository.removerUsuarioPorCodigo(CodigoExemplar);
+        const removido = this.EstoqueRepository.removerUsuarioPorCodigo(Codigo);
         return removido ? "Exemplar removido com sucesso" : "Erro ao remover exemplar";
     }
 }

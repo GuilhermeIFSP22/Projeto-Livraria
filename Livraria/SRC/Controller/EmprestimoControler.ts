@@ -5,14 +5,14 @@ const emprestimoService = new EmprestimoService();
 
   export function registrarEmprestimo(req: Request, res: Response): void {
     try {
-      const { data_emprestimo, UsuarioID, EstoqueID } = req.body;
+      const { data_emprestimo,CPF, UsuarioID, EstoqueID } = req.body;
 
       if (!data_emprestimo || !UsuarioID || !EstoqueID) {
-        res.status(400).json({ mensagem: "Campos obrigatórios: data_emprestimo, UsuarioID, EstoqueID" });
+        res.status(400).json({ mensagem: "Campos obrigatórios: data_emprestimo,CPF, UsuarioID, EstoqueID" });
         return;
       }
 
-      const novoEmprestimo = emprestimoService.registrarEmprestimo(new Date(data_emprestimo), UsuarioID, EstoqueID);
+      const novoEmprestimo = emprestimoService.registrarEmprestimo(new Date(data_emprestimo),CPF, UsuarioID, EstoqueID);
       res.status(201).json({ mensagem: "Empréstimo registrado com sucesso", emprestimo: novoEmprestimo });
     } catch (error: any) {
       res.status(500).json({ mensagem: error.message || "Erro ao registrar empréstimo" });

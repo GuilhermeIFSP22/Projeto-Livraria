@@ -39,7 +39,7 @@ app.delete('/Library/estoque/RemoverExemplar/:Codigo', RemoverExemplarPorCodigo)
 
 app.post("/Library/emprestimos/RegistrarEmprestimo", registrarEmprestimo);
 app.get('/Library/emprestimos/ListarEmprestimos', listarEmprestimos);
-app.get('/Library/emprestimos/RegistrarDevolucao', registrarDevolucao);
+app.put('/Library/emprestimos/RegistrarDevolucao', registrarDevolucao);
 
 
 app.listen(PORT, logInfo);

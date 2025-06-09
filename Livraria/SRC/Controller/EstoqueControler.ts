@@ -28,7 +28,8 @@ const estoqueService = new EstoqueService();
     
     
     export function ConsultarExemplarPorCodigo(req: Request, res: Response) {
-        const CodigoExemplar = Number(req.params.CodigoExemplar); 
+       const { Codigo } = req.params; 
+       const CodigoExemplar = Number(Codigo);
     
         try {
             const estoque = estoqueService.ConsultarExemplarPorCodigo(CodigoExemplar);
@@ -50,8 +51,9 @@ const estoqueService = new EstoqueService();
     
     
     export function atualizarDispoPorCodigo(req: Request, res: Response) {
-        const CodigoExemplar = Number(req.params.CodigoExemplar); 
+        const { Codigo } = req.params; 
         const { disponivel } = req.body;
+        const CodigoExemplar = Number(Codigo);
     
         try {
             const DisponibilidadeAtualizado = estoqueService.AtualizarDispoPorCodigo(CodigoExemplar,disponivel)
@@ -73,7 +75,8 @@ const estoqueService = new EstoqueService();
     
    
     export function RemoverExemplarPorCodigo(req: Request, res: Response) {
-       const CodigoExemplar = Number(req.params.CodigoExemplar); 
+       const { Codigo } = req.params;
+       const CodigoExemplar = Number(Codigo); 
     
         try {
             const resultado = estoqueService.RemoverExemplarPorCodigo(CodigoExemplar);

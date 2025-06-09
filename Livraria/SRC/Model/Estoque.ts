@@ -7,14 +7,14 @@ export class Estoque{
     id : number;
     quantidade : number;
     quantidade_emprestada : number;
-    CodigoExemplar : number;
+    Codigo : number;
     LivroID : number;
     disponivel : boolean;
 
-    constructor(quantidade:number, quantidade_emprestada:number,CodigoExemplar:number,LivroID:number){
+    constructor(quantidade:number, quantidade_emprestada:number,Codigo:number,LivroID:number){
         this.quantidade = quantidade,
         this.quantidade_emprestada= quantidade_emprestada;
-        this.CodigoExemplar = CodigoExemplar;
+        this.Codigo = Codigo;
         this.LivroID = LivroID,
         this.id = Estoque.incrementarID();
         this.disponivel = true;
