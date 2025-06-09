@@ -58,7 +58,7 @@ export class EmprestimoService {
     const emprestimosAtivos = this.emprestimoRepository.listarEmprestimos()
       .filter(e => e.UsuarioID === UsuarioID && e.data_entrega.getTime() === 0);
 
-    const categoria = usuario.getNomeCategoria(); // "aluno" ou "professor"
+    const categoria = usuario.getNomeCategoria(); 
     const limite = categoria === "professor" ? 5 : 3;
 
     if (emprestimosAtivos.length >= limite) {
@@ -78,18 +78,18 @@ export class EmprestimoService {
     const estoque = this.estoqueRepository.filtrarExemplarPorCodigo(emprestimo.EstoqueID);
     if (!usuario || !estoque) return undefined;
 
-    const categoria = usuario.getNomeCategoria(); // "professor" ou "aluno"
+    const categoria = usuario.getNomeCategoria();
     let diasPrazo = 0;
 4
     if (categoria === "professor") {
       diasPrazo = 40;
     } else {
       
-    const livro = this.livroRepository.listarLivros({ id: estoque.LivroID })[0]; // ✅ Busca livro pelo ID
+    const livro = this.livroRepository.listarLivros({ id: estoque.LivroID })[0]; 
     if (!livro) return undefined;
 
     const cursoCategoria = Curso.buscarNomePorID(usuario.CursoID).toLowerCase();
-    const livroCategoria = CategoriaLivro.buscarNomePorID(livro.CategoriaID).toLowerCase(); // ✅ Corrigido aqui
+    const livroCategoria = CategoriaLivro.buscarNomePorID(livro.CategoriaID).toLowerCase(); 
 
     diasPrazo = cursoCategoria === livroCategoria ? 30 : 15;
   }

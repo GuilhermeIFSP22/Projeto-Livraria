@@ -1,6 +1,3 @@
-import { Usuario } from "./Usuario";
-import { Estoque } from "./Estoque";
-
 export class Emprestimo{
  
      private static ultimoID : number = 0;

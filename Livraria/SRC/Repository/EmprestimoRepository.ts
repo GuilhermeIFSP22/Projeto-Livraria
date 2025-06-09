@@ -32,7 +32,6 @@ export class EmprestimoRepository {
 
     emprestimo.data_entrega = dataEntrega;
 
-    // Prazo de 7 dias para devolução
     const dataLimite = new Date(emprestimo.data_emprestimo);
     dataLimite.setDate(dataLimite.getDate() + 7);
 

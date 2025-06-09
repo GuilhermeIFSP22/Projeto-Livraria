@@ -1,5 +1,4 @@
 import { Estoque } from "../Model/Estoque";
-import { Livro } from "../Model/Livro";
 
 export class EstoqueRepository{
     

@@ -1,5 +1,3 @@
-import { Livro } from "./Livro";
-
 export class Estoque{
 
     private static ultimoID : number = 0;
