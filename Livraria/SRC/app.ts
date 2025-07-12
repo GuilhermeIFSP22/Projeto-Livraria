@@ -5,6 +5,13 @@ import {ConsultarCategoriaLivro,ConsultarCurso,ConsultarCategoriaUsuario} from '
 import { atualizarLivroPorISBN, cadastrarLivro, ConsultarLivroPorISBN, listarLivros, removerLivroPorISBN } from './Controller/LivroControler';
 import {cadastrarEstoque, listarEstoqueDisponivel, ConsultarExemplarPorCodigo, atualizarDispoPorCodigo, RemoverExemplarPorCodigo} from './Controller/EstoqueControler';
 import {registrarEmprestimo, listarEmprestimos, registrarDevolucao} from './Controller/EmprestimoControler';
+import { atualizarStatusUsuariosPorSuspensao } from './untils/AtualizarSuspensao';
+
+atualizarStatusUsuariosPorSuspensao();
+
+setInterval(() => {
+  atualizarStatusUsuariosPorSuspensao();
+}, 5 * 60 * 1000);
 
 const app = express();
 
