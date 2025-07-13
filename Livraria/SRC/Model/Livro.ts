@@ -2,8 +2,6 @@ import { CategoriaLivro } from "./CategoriaLivro";
 
 export class Livro{
 
-    private static ultimoID : number = 0;
-
     id : number;
     titulo : string;
     autor : string;
@@ -12,7 +10,7 @@ export class Livro{
     isbn : string;
     CategoriaID : number;
 
-    constructor(titulo:string, autor:string,editora:string,edicao:string,isbn:string,CategoriaID:number){
+    constructor(titulo:string, autor:string,editora:string,edicao:string,isbn:string,CategoriaID:number,id:number){
 
         if(!titulo || !autor || !editora || !edicao || !isbn || !CategoriaID){
                 throw new Error ("Informações incompletas");
@@ -24,10 +22,6 @@ export class Livro{
         this.edicao = edicao;
         this.isbn = isbn;
         this.CategoriaID = CategoriaID;
-        this.id = Livro.incrementarID();
-    }
-
-    private static incrementarID(): number {
-        return ++Livro.ultimoID;
+        this.id = id;
     }
 }

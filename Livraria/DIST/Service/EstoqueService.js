@@ -9,12 +9,12 @@ class EstoqueService {
     EstoqueRepository = EstoqueRepository_1.EstoqueRepository.getInstance();
     livroRepository = LivroRepository_1.LivroRepository.getInstance();
     emprestimoRepository = EmprestimoRepository_1.EmprestimoRepository.getInstance();
-    cadastrarEstoque(EstoqueData) {
+    async cadastrarEstoque(EstoqueData) {
         const { quantidade, quantidade_emprestada, Codigo, ISBN, disponivel } = EstoqueData;
         if (!ISBN || Codigo === undefined) {
             throw new Error("Campos obrigatórios ausentes: ISBN do livro e código do exemplar");
         }
-        const livro = this.livroRepository.filtrarLivroPorISBN(ISBN);
+        const livro = await this.livroRepository.filtrarLivroPorISBN(ISBN);
         if (!livro) {
             throw new Error("Livro com o ISBN fornecido não encontrado");
         }

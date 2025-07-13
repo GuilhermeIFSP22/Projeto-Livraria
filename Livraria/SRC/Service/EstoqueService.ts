@@ -9,14 +9,14 @@ export class EstoqueService{
     livroRepository : LivroRepository = LivroRepository.getInstance();
     emprestimoRepository : EmprestimoRepository = EmprestimoRepository.getInstance();
     
-    cadastrarEstoque(EstoqueData: any): Estoque {
+    async cadastrarEstoque(EstoqueData: any): Promise<Estoque> {
         const { quantidade, quantidade_emprestada, Codigo, ISBN, disponivel } = EstoqueData;
 
         if (!ISBN || Codigo === undefined) {
             throw new Error("Campos obrigatórios ausentes: ISBN do livro e código do exemplar");
         }
 
-        const livro = this.livroRepository.filtrarLivroPorISBN(ISBN);
+        const livro = await this.livroRepository.filtrarLivroPorISBN(ISBN);
         if (!livro) {
             throw new Error("Livro com o ISBN fornecido não encontrado");
         }

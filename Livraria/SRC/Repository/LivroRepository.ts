@@ -1,64 +1,150 @@
 import { Livro } from "../Model/Livro";
- 
- export class LivroRepository{
-     
-     private static instance: LivroRepository | null = null;
-     private ListaLivros: Livro[] = [];
- 
-     private constructor() {}
- 
-     public static getInstance(): LivroRepository {
-         if (!this.instance) {
-             this.instance = new LivroRepository();
-         }
-         return this.instance;
-     }
- 
-       cadastrarLivro (Livro : Livro){
-         this.ListaLivros.push(Livro);
-       }
-     
-        listarLivros(filtros: { 
-            id?: number, 
-            titulo?: string, 
-            autor?: string, 
-            editora?: string, 
-            edicao?: string, 
-            isbn?: string, 
-            CategoriaID?: number 
-        } = {}): Livro[] {
-            return this.ListaLivros.filter((livro) =>
-                (filtros.id == null || livro.id === filtros.id) &&
-                (!filtros.titulo || livro.titulo.toLowerCase().includes(filtros.titulo.toLowerCase())) &&
-                (!filtros.autor || livro.autor.toLowerCase().includes(filtros.autor.toLowerCase())) &&
-                (!filtros.editora || livro.editora.toLowerCase().includes(filtros.editora.toLowerCase())) &&
-                (!filtros.edicao || livro.edicao.toLowerCase().includes(filtros.edicao.toLowerCase())) &&
-                (!filtros.isbn || livro.isbn.toLowerCase().includes(filtros.isbn.toLowerCase())) &&
-                (filtros.CategoriaID == null || livro.CategoriaID === filtros.CategoriaID)
-            );
-  }
- 
-       filtrarLivroPorISBN (ISBN:string) : Livro | undefined {
-         return this.ListaLivros.find (Livro => Livro.isbn === ISBN);
-       }
- 
-       atualizarLivroPorISBN (LivroAtualizado:Livro) : Livro | undefined {
-         const index = this.ListaLivros.findIndex (Livro => Livro.isbn === LivroAtualizado.isbn)
-         if (index !== -1) {
-           this.ListaLivros[index] = LivroAtualizado;
-           return this.ListaLivros[index];
-         }
-         return undefined;
-     }
- 
-     removerLivroPorISBN(ISBN: string) : boolean {
-       const index = this.ListaLivros.findIndex (Livro => Livro.isbn === ISBN);
- 
-         if (index !== -1) {
-           
-           this.ListaLivros.splice(index, 1);
-           return true
-         }
-         return false
-       }
- }
+import { executarComandoSQL } from "../DataBase/mysql";
+
+export class LivroRepository {
+    private static instance: LivroRepository;
+
+    private constructor() {
+      this.createTable();
+    }
+
+    public static getInstance(): LivroRepository {
+      if (!this.instance) {
+        this.instance = new LivroRepository();
+      }
+      return this.instance;
+    }
+
+    private async createTable() {
+      const query = `
+        CREATE TABLE IF NOT EXISTS Livraria.Livro (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          titulo VARCHAR(255) NOT NULL,
+          autor VARCHAR(255) NOT NULL,
+          editora VARCHAR(255) NOT NULL,
+          edicao VARCHAR(100) NOT NULL,
+          isbn VARCHAR(20) NOT NULL UNIQUE,
+          CategoriaID INT NOT NULL
+        )
+      `;
+      try {
+        await executarComandoSQL(query, []);
+        console.log("Tabela Livro criada (ou já existia).");
+      } catch (err) {
+        console.error("Erro ao criar a tabela Livro:", err);
+      }
+    }
+
+    async cadastrarLivro(livro: Livro): Promise<number> {
+      const query = `
+        INSERT INTO Livraria.Livro (titulo, autor, editora, edicao, isbn, CategoriaID)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      const valores = [livro.titulo, livro.autor, livro.editora, livro.edicao, livro.isbn, livro.CategoriaID];
+      try {
+        const resultado: any = await executarComandoSQL(query, valores);
+        console.log("Livro cadastrado com sucesso!");
+        return resultado.insertId;
+      } catch (err) {
+        console.error("Erro ao cadastrar livro:", err);
+        throw err;
+      }
+    }
+
+    async listarLivros(filtros: {
+      id?: number;
+      titulo?: string;
+      autor?: string;
+      editora?: string;
+      edicao?: string;
+      isbn?: string;
+      CategoriaID?: number;
+    } = {}): Promise<Livro[]> {
+      let query = `SELECT * FROM Livraria.Livro WHERE 1=1`;
+      const valores: any[] = [];
+
+      if (filtros.id != null) {
+        query += ` AND id = ?`;
+        valores.push(filtros.id);
+      }
+      if (filtros.titulo) {
+        query += ` AND LOWER(titulo) LIKE ?`;
+        valores.push(`%${filtros.titulo.toLowerCase()}%`);
+      }
+      if (filtros.autor) {
+        query += ` AND LOWER(autor) LIKE ?`;
+        valores.push(`%${filtros.autor.toLowerCase()}%`);
+      }
+      if (filtros.editora) {
+        query += ` AND LOWER(editora) LIKE ?`;
+        valores.push(`%${filtros.editora.toLowerCase()}%`);
+      }
+      if (filtros.edicao) {
+        query += ` AND LOWER(edicao) LIKE ?`;
+        valores.push(`%${filtros.edicao.toLowerCase()}%`);
+      }
+      if (filtros.isbn) {
+        query += ` AND LOWER(isbn) LIKE ?`;
+        valores.push(`%${filtros.isbn.toLowerCase()}%`);
+      }
+      if (filtros.CategoriaID != null) {
+        query += ` AND CategoriaID = ?`;
+        valores.push(filtros.CategoriaID);
+      }
+
+      const resultado = await executarComandoSQL(query, valores);
+      return resultado.map((registro: any) =>
+        new Livro(
+          registro.titulo,
+          registro.autor,
+          registro.editora,
+          registro.edicao,
+          registro.isbn,
+          registro.CategoriaID,
+          registro.id
+        )
+      );
+    }
+
+    async filtrarLivroPorISBN(isbn: string): Promise<Livro | undefined> {
+      const query = `SELECT * FROM Livraria.Livro WHERE isbn = ?`;
+      const resultado = await executarComandoSQL(query, [isbn]);
+
+      const registro = resultado[0];
+      if (!registro) return undefined;
+
+      return new Livro(
+        registro.titulo,
+        registro.autor,
+        registro.editora,
+        registro.edicao,
+        registro.isbn,
+        registro.CategoriaID,
+        registro.id
+      );
+    }
+
+    async atualizarLivroPorISBN(livro: Livro): Promise<Livro | undefined> {
+      const query = `
+        UPDATE Livraria.Livro
+        SET titulo = ?, autor = ?, editora = ?, edicao = ?, CategoriaID = ?
+        WHERE isbn = ?
+      `;
+      const valores = [
+        livro.titulo,
+        livro.autor,
+        livro.editora,
+        livro.edicao,
+        livro.CategoriaID,
+        livro.isbn,
+      ];
+      const resultado = await executarComandoSQL(query, valores);
+      return resultado.affectedRows > 0 ? livro : undefined;
+    }
+
+    async removerLivroPorISBN(isbn: string): Promise<boolean> {
+      const query = `DELETE FROM Livraria.Livro WHERE isbn = ?`;
+      const resultado = await executarComandoSQL(query, [isbn]);
+      return resultado.affectedRows > 0;
+    }
+}

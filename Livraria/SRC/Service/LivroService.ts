@@ -1,6 +1,5 @@
 import { Livro } from "../Model/Livro";
 import { LivroRepository } from "../Repository/LivroRepository";
-import { CategoriaLivro } from "../Model/CategoriaLivro";
 import { EstoqueRepository } from "../Repository/EstoqueRepository";
 import { EmprestimoRepository } from "../Repository/EmprestimoRepository";
 import { CatLivroRepository } from "../Repository/CatLivroRepository";
@@ -25,7 +24,7 @@ export class LivroService{
 
         async cadastrarLivro (LivroData:any) : Promise<LivroResposta> {
             const {titulo, autor, editora, edicao,isbn, categoria} = LivroData;
-            const livrosExistentes = this.LivroRepository.listarLivros();
+            const livrosExistentes = await this.LivroRepository.listarLivros();
             const livroDuplicado = livrosExistentes.find(l =>
                 l.autor === autor && l.editora === editora && l.edicao === edicao
             );
@@ -38,9 +37,10 @@ export class LivroService{
                 if (!categoriaInfo) {
                 throw new Error("Categoria inválida.");
             }
-            const novoLivro = new Livro (titulo,autor,editora,edicao,isbn,categoria);
-            this.LivroRepository.cadastrarLivro(novoLivro);
-
+            const novoLivro = new Livro(titulo, autor, editora, edicao, isbn, categoria, 0);
+            const idGerado = await this.LivroRepository.cadastrarLivro(novoLivro);
+            novoLivro.id = idGerado;
+            
             return {
                 id : novoLivro.id,
                 titulo: novoLivro.titulo,
@@ -62,10 +62,10 @@ export class LivroService{
                 CategoriaID?: number 
             } = {}): Promise<LivroResposta[]> {
             
-            const livrosData = this.LivroRepository.listarLivros(filtros);
+            const livrosData = await this.LivroRepository.listarLivros(filtros);
 
             const livrosInstanciados = livrosData.map(l =>
-                new Livro(l.titulo, l.autor, l.editora, l.edicao, l.isbn, l.CategoriaID)
+                new Livro(l.titulo, l.autor, l.editora, l.edicao, l.isbn, l.CategoriaID,l.id)
             );
 
             return Promise.all(
@@ -85,7 +85,7 @@ export class LivroService{
             }
 
           async ConsultarLivroPorISBN(ISBN: any): Promise <any | undefined> {
-            const Livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
+            const Livro = await this.LivroRepository.filtrarLivroPorISBN(ISBN);
 
             if (!Livro) return undefined;
 
@@ -101,9 +101,9 @@ export class LivroService{
          };
     }
 
-    AtualizarLivroPorISBN(ISBN:any, titulo?:string, autor?:string, editora?:string, edicao?:string, CategoriaID?:number): Livro | undefined{
+    async AtualizarLivroPorISBN(ISBN:any, titulo?:string, autor?:string, editora?:string, edicao?:string, CategoriaID?:number): Promise<Livro | undefined>{
         
-        const Livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
+        const Livro = await this.LivroRepository.filtrarLivroPorISBN(ISBN);
 
         if (!Livro) {
         console.log("Livro não encontrado");
@@ -134,9 +134,9 @@ export class LivroService{
            return Livro;
         }
     }
-    RemoverLivroPorISBN(ISBN:string) :string{
+    async RemoverLivroPorISBN(ISBN:string): Promise<string>{
 
-        const livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
+        const livro = await this.LivroRepository.filtrarLivroPorISBN(ISBN);
             if (!livro) {
                 return "Livro não encontrado";
             }
@@ -146,7 +146,7 @@ export class LivroService{
             .find(ex => ex.LivroID === livro.id);
 
             if (!exemplar) {
-                const removido = this.LivroRepository.removerLivroPorISBN(ISBN);
+                const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
                 return removido ? "Livro removido com sucesso" : "Livro não encontrado";
             }
  
@@ -161,7 +161,7 @@ export class LivroService{
             }
 
         this.estoqueRepository.removerUsuarioPorCodigo(exemplar.Codigo);
-        const removido = this.LivroRepository.removerLivroPorISBN(ISBN);
+        const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
 
         return removido ? "Livro removido com sucesso" : "Livro não encontrado";
 }

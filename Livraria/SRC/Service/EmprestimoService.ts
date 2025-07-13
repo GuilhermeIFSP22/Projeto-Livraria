@@ -2,7 +2,6 @@ import { Emprestimo } from "../Model/Emprestimo";
 import { EmprestimoRepository } from "../Repository/EmprestimoRepository";
 import { UsuarioRepository } from "../Repository/UsuarioRepository";
 import { EstoqueRepository } from "../Repository/EstoqueRepository";
-import { CategoriaLivro } from "../Model/CategoriaLivro";
 import { LivroRepository } from "../Repository/LivroRepository";
 import { CursoRepository } from "../Repository/CursoRepository";
 import { CatUsuarioRepository } from "../Repository/CatUsuarioRepository";
@@ -92,7 +91,8 @@ export class EmprestimoService {
     if (categoria === "professor") {
       diasPrazo = 40;
     } else {
-      const livro = this.livroRepository.listarLivros({ id: estoque.LivroID })[0];
+      const livros = await this.livroRepository.listarLivros({ id: estoque.LivroID });
+      const livro = livros[0];
       if (!livro) return undefined;
 
       const curso = await this.cursoRepository.buscarCursoPorID(usuario.CursoID);

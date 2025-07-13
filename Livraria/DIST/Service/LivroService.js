@@ -13,7 +13,7 @@ class LivroService {
     CatLivroRepository = CatLivroRepository_1.CatLivroRepository.getInstance();
     async cadastrarLivro(LivroData) {
         const { titulo, autor, editora, edicao, isbn, categoria } = LivroData;
-        const livrosExistentes = this.LivroRepository.listarLivros();
+        const livrosExistentes = await this.LivroRepository.listarLivros();
         const livroDuplicado = livrosExistentes.find(l => l.autor === autor && l.editora === editora && l.edicao === edicao);
         if (livroDuplicado) {
             throw new Error("Já existe um livro cadastrado com essa combinação de autor, editora e edição.");
@@ -22,8 +22,9 @@ class LivroService {
         if (!categoriaInfo) {
             throw new Error("Categoria inválida.");
         }
-        const novoLivro = new Livro_1.Livro(titulo, autor, editora, edicao, isbn, categoria);
-        this.LivroRepository.cadastrarLivro(novoLivro);
+        const novoLivro = new Livro_1.Livro(titulo, autor, editora, edicao, isbn, categoria, 0);
+        const idGerado = await this.LivroRepository.cadastrarLivro(novoLivro);
+        novoLivro.id = idGerado;
         return {
             id: novoLivro.id,
             titulo: novoLivro.titulo,
@@ -35,8 +36,8 @@ class LivroService {
         };
     }
     async listarLivros(filtros = {}) {
-        const livrosData = this.LivroRepository.listarLivros(filtros);
-        const livrosInstanciados = livrosData.map(l => new Livro_1.Livro(l.titulo, l.autor, l.editora, l.edicao, l.isbn, l.CategoriaID));
+        const livrosData = await this.LivroRepository.listarLivros(filtros);
+        const livrosInstanciados = livrosData.map(l => new Livro_1.Livro(l.titulo, l.autor, l.editora, l.edicao, l.isbn, l.CategoriaID, l.id));
         return Promise.all(livrosInstanciados.map(async (livro) => {
             const categoria = await this.CatLivroRepository.buscarCatLivroPorID(livro.CategoriaID);
             return {
@@ -51,7 +52,7 @@ class LivroService {
         }));
     }
     async ConsultarLivroPorISBN(ISBN) {
-        const Livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
+        const Livro = await this.LivroRepository.filtrarLivroPorISBN(ISBN);
         if (!Livro)
             return undefined;
         const categoria = await this.CatLivroRepository.buscarCatLivroPorID(Livro.CategoriaID);
@@ -64,8 +65,8 @@ class LivroService {
             categoria: categoria?.nome
         };
     }
-    AtualizarLivroPorISBN(ISBN, titulo, autor, editora, edicao, CategoriaID) {
-        const Livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
+    async AtualizarLivroPorISBN(ISBN, titulo, autor, editora, edicao, CategoriaID) {
+        const Livro = await this.LivroRepository.filtrarLivroPorISBN(ISBN);
         if (!Livro) {
             console.log("Livro não encontrado");
             return undefined;
@@ -89,15 +90,15 @@ class LivroService {
             return Livro;
         }
     }
-    RemoverLivroPorISBN(ISBN) {
-        const livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
+    async RemoverLivroPorISBN(ISBN) {
+        const livro = await this.LivroRepository.filtrarLivroPorISBN(ISBN);
         if (!livro) {
             return "Livro não encontrado";
         }
         const exemplar = this.estoqueRepository.listarEstoqueDisponivel()
             .find(ex => ex.LivroID === livro.id);
         if (!exemplar) {
-            const removido = this.LivroRepository.removerLivroPorISBN(ISBN);
+            const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
             return removido ? "Livro removido com sucesso" : "Livro não encontrado";
         }
         const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
@@ -107,7 +108,7 @@ class LivroService {
             return "Não é possível remover o livro, o exemplar está emprestado";
         }
         this.estoqueRepository.removerUsuarioPorCodigo(exemplar.Codigo);
-        const removido = this.LivroRepository.removerLivroPorISBN(ISBN);
+        const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
         return removido ? "Livro removido com sucesso" : "Livro não encontrado";
     }
 }

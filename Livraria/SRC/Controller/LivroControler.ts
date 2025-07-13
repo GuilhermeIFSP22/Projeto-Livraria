@@ -3,9 +3,9 @@ import { LivroService } from "../Service/LivroService";
 
 const livroService = new LivroService;
 
-export function cadastrarLivro (req:Request, res:Response){
+export async function cadastrarLivro (req:Request, res:Response){
     try{
-        const novoLivro = livroService.cadastrarLivro(req.body);
+        const novoLivro = await livroService.cadastrarLivro(req.body);
         res.status(201).json(
             {
                 mensagem: "Livro cadastrado com sucesso",
@@ -17,10 +17,10 @@ export function cadastrarLivro (req:Request, res:Response){
     }
 }
 
-export function listarLivros(req: Request, res: Response) {
+export async function listarLivros(req: Request, res: Response) {
         try {
             const filtros = req.query;
-            const Lista = livroService.listarLivros(filtros);
+            const Lista = await livroService.listarLivros(filtros);
             res.status(200).json({
                 mensagem: "Livros encontrados com sucesso",
                 Livros: Lista,
@@ -31,11 +31,11 @@ export function listarLivros(req: Request, res: Response) {
     }
     
     
-    export function ConsultarLivroPorISBN(req: Request, res: Response) {
+    export async function ConsultarLivroPorISBN(req: Request, res: Response) {
         const { ISBN } = req.params; 
     
         try {
-            const livro = livroService.ConsultarLivroPorISBN(ISBN)
+            const livro = await livroService.ConsultarLivroPorISBN(ISBN)
     
             if (livro) {
                 res.status(200).json({
@@ -53,12 +53,12 @@ export function listarLivros(req: Request, res: Response) {
     }
     
     
-    export function atualizarLivroPorISBN(req: Request, res: Response) {
+    export async function atualizarLivroPorISBN(req: Request, res: Response) {
         const { ISBN } = req.params; 
         const { titulo, autor, editora, edicao, CategoriaID } = req.body;
     
         try {
-            const livroAtualizado = livroService.AtualizarLivroPorISBN(ISBN,titulo, autor, editora, edicao, CategoriaID)
+            const livroAtualizado = await livroService.AtualizarLivroPorISBN(ISBN,titulo, autor, editora, edicao, CategoriaID)
     
             if (livroAtualizado) {
                 res.status(200).json({
@@ -76,11 +76,11 @@ export function listarLivros(req: Request, res: Response) {
     }
     
    
-    export function removerLivroPorISBN(req: Request, res: Response) {
+    export async function removerLivroPorISBN(req: Request, res: Response) {
         const { ISBN } = req.params; 
     
         try {
-            const resultado = livroService.RemoverLivroPorISBN(ISBN);
+            const resultado = await livroService.RemoverLivroPorISBN(ISBN);
     
             if (resultado === "Livro removido com sucesso") {
                 res.status(200).json({

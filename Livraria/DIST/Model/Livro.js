@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Livro = void 0;
 class Livro {
-    static ultimoID = 0;
     id;
     titulo;
     autor;
@@ -10,7 +9,7 @@ class Livro {
     edicao;
     isbn;
     CategoriaID;
-    constructor(titulo, autor, editora, edicao, isbn, CategoriaID) {
+    constructor(titulo, autor, editora, edicao, isbn, CategoriaID, id) {
         if (!titulo || !autor || !editora || !edicao || !isbn || !CategoriaID) {
             throw new Error("Informações incompletas");
         }
@@ -20,10 +19,7 @@ class Livro {
         this.edicao = edicao;
         this.isbn = isbn;
         this.CategoriaID = CategoriaID;
-        this.id = Livro.incrementarID();
-    }
-    static incrementarID() {
-        return ++Livro.ultimoID;
+        this.id = id;
     }
 }
 exports.Livro = Livro;

@@ -79,7 +79,8 @@ class EmprestimoService {
             diasPrazo = 40;
         }
         else {
-            const livro = this.livroRepository.listarLivros({ id: estoque.LivroID })[0];
+            const livros = await this.livroRepository.listarLivros({ id: estoque.LivroID });
+            const livro = livros[0];
             if (!livro)
                 return undefined;
             const curso = await this.cursoRepository.buscarCursoPorID(usuario.CursoID);
