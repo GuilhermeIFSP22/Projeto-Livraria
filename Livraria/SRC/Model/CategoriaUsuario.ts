@@ -1,33 +1,10 @@
 export class CategoriaUsuario {
-
-    private static ultimoID : number = 0;
-
     id : number;
     nome : string;
-    static listaCatUsu: CategoriaUsuario[] = [];
-
-    constructor(nome:string){
+    
+    constructor(id: number, nome:string){
 
         this.nome = nome;
-        this.id = ++CategoriaUsuario.ultimoID;
-    }
-
-    static inicializarCategoriaUsuario() {
-        
-        CategoriaUsuario.ultimoID = 0;
-        CategoriaUsuario.listaCatUsu = [
-          new CategoriaUsuario("Professor"),
-          new CategoriaUsuario("Aluno"),
-          new CategoriaUsuario("Bibliotecário"),
-        ];
-    }
-        static buscarNomePorID(id: number): string {
-            const CatUsu = CategoriaUsuario.listaCatUsu.find(usu => usu.id === id);
-            return CatUsu ? CatUsu.nome : "Categoria de Usuário não encontrada";
-          }
-
-        static buscarIDPorNome(nome: string): number | undefined {
-        const categoria = this.listaCatUsu.find(c => c.nome.toLowerCase() === nome.toLowerCase());
-        return categoria ? categoria.id : undefined;
+        this.id = id;
     }
 }

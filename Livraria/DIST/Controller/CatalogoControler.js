@@ -5,12 +5,12 @@ exports.ConsultarCategoriaLivro = ConsultarCategoriaLivro;
 exports.ConsultarCurso = ConsultarCurso;
 const CatalogoService_1 = require("../Service/CatalogoService");
 const usuarioService = new CatalogoService_1.CatalogoService;
-function ConsultarCategoriaUsuario(req, res) {
+async function ConsultarCategoriaUsuario(req, res) {
     try {
-        const CategoriaUsuario = usuarioService.ConsultarCategoriaUsuario();
+        const categoriasUsuario = await usuarioService.ConsultarCategoriaUsuario();
         res.status(200).json({
             mensagem: "Sucesso",
-            Usuarios: CategoriaUsuario,
+            dados: categoriasUsuario,
         });
     }
     catch (error) {

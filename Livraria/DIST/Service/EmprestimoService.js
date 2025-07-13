@@ -8,6 +8,7 @@ const EstoqueRepository_1 = require("../Repository/EstoqueRepository");
 const CategoriaLivro_1 = require("../Model/CategoriaLivro");
 const LivroRepository_1 = require("../Repository/LivroRepository");
 const CursoRepository_1 = require("../Repository/CursoRepository");
+const CatUsuarioRepository_1 = require("../Repository/CatUsuarioRepository");
 var StatusUsuario;
 (function (StatusUsuario) {
     StatusUsuario["Ativo"] = "ativo";
@@ -20,6 +21,7 @@ class EmprestimoService {
     estoqueRepository = EstoqueRepository_1.EstoqueRepository.getInstance();
     livroRepository = LivroRepository_1.LivroRepository.getInstance();
     cursoRepository = CursoRepository_1.CursoRepository.getInstance();
+    catUsuarioRepository = CatUsuarioRepository_1.CatUsuarioRepository.getInstance();
     listarEmprestimos() {
         return this.emprestimoRepository.listarEmprestimos();
     }
@@ -51,7 +53,8 @@ class EmprestimoService {
         }
         const emprestimosAtivos = this.emprestimoRepository.listarEmprestimos()
             .filter(e => e.UsuarioID === UsuarioID && e.data_entrega.getTime() === 0);
-        const categoria = usuario.getNomeCategoria();
+        const catUsuario = await this.catUsuarioRepository.buscarCategoriaPorID(usuario.CatUsuID);
+        const categoria = catUsuario?.nome.toLowerCase() ?? "";
         const limite = categoria === "professor" ? 5 : 3;
         if (emprestimosAtivos.length >= limite) {
             throw new Error("Usuário atingiu o limite de livros emprestados.");
@@ -68,7 +71,8 @@ class EmprestimoService {
         const estoque = this.estoqueRepository.filtrarExemplarPorCodigo(emprestimo.EstoqueID);
         if (!usuario || !estoque)
             return undefined;
-        const categoria = usuario.getNomeCategoria();
+        const catUsuario = await this.catUsuarioRepository.buscarCategoriaPorID(usuario.CatUsuID);
+        const categoria = catUsuario?.nome.toLowerCase() ?? "";
         let diasPrazo = 0;
         if (categoria === "professor") {
             diasPrazo = 40;

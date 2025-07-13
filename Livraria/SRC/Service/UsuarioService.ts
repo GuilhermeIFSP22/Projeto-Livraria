@@ -1,9 +1,8 @@
-import { CategoriaUsuario } from "../Model/CategoriaUsuario";
-import { Curso } from "../Model/Curso";
 import { Usuario } from "../Model/Usuario";
 import { UsuarioRepository } from "../Repository/UsuarioRepository";
 import { EmprestimoRepository } from "../Repository/EmprestimoRepository";
 import { CursoRepository } from "../Repository/CursoRepository";
+import { CatUsuarioRepository } from "../Repository/CatUsuarioRepository";
 
 interface UsuarioResposta {
   id: number;
@@ -18,6 +17,7 @@ export class UsuarioService {
   private usuarioRepository = UsuarioRepository.getInstance();
   private emprestimoRepository = EmprestimoRepository.getInstance();
   private cursoRepository = CursoRepository.getInstance();
+  private catUsuarioRepository: CatUsuarioRepository = CatUsuarioRepository.getInstance();
 
   async cadastrarUsuario(usuarioData: any): Promise<UsuarioResposta> {
     const { nome, cpf, CursoID, CatUsuID } = usuarioData;
@@ -33,6 +33,9 @@ export class UsuarioService {
     const curso = await this.cursoRepository.buscarCursoPorID(CursoID);
     if (!curso) throw new Error("Curso inválido ou inexistente");
 
+    const categoria = await this.catUsuarioRepository.buscarCategoriaPorID(CatUsuID);
+    if (!categoria) throw new Error("Categoria inválida ou inexistente");
+
     const novoUsuario = new Usuario(nome, cpf, "ativo", CursoID, CatUsuID);
     const idGerado = await this.usuarioRepository.cadastrarUsuario(novoUsuario);
     novoUsuario.id = idGerado;
@@ -43,7 +46,7 @@ export class UsuarioService {
       cpf: novoUsuario.cpf,
       status: novoUsuario.status,
       curso: curso.nome,
-      categoria: novoUsuario.getNomeCategoria(),
+      categoria: categoria.nome,
     };
   }
 
@@ -57,7 +60,7 @@ export class UsuarioService {
   return Promise.all(
     usuariosInstanciados.map(async (usuario) => {
       const curso = await this.cursoRepository.buscarCursoPorID(usuario.CursoID);
-      const categoria = CategoriaUsuario.buscarNomePorID(usuario.CatUsuID);
+      const categoria = await this.catUsuarioRepository.buscarCategoriaPorID(usuario.CatUsuID);
 
       return {
         id: usuario.id!,
@@ -65,7 +68,7 @@ export class UsuarioService {
         cpf: usuario.cpf,
         status: usuario.status,
         curso: curso?.nome ?? "Curso não encontrado",
-        categoria: categoria ?? "Categoria não encontrada",
+        categoria: categoria?.nome ?? "Categoria não encontrada",
       };
     })
   );
@@ -78,7 +81,7 @@ export class UsuarioService {
 
   const curso = await this.cursoRepository.buscarCursoPorID(u.CursoID);
 
-  const categoria = CategoriaUsuario.buscarNomePorID(u.CatUsuID);
+  const categoria = await this.catUsuarioRepository.buscarCategoriaPorID(u.CatUsuID);
 
   return {
     id: u.id!,
@@ -86,7 +89,7 @@ export class UsuarioService {
     cpf: u.cpf,
     status: u.status,
     curso: curso?.nome ?? "Curso não encontrado",
-    categoria: categoria ?? "Categoria não encontrada",
+    categoria: categoria?.nome ?? "Categoria não encontrada",
   };
 }
 
@@ -104,16 +107,16 @@ export class UsuarioService {
   }
 
   if (categoriaNome) {
-    const idCategoria = CategoriaUsuario.buscarIDPorNome(categoriaNome);
-    if (!idCategoria) throw new Error("Categoria de usuário inválida ou inexistente");
-    usuarioAtualizado.CatUsuID = idCategoria;
+    const Categoria = await this.catUsuarioRepository.buscarCategoriaPorNome(categoriaNome);
+    if (!Categoria) throw new Error("Categoria de usuário inválida ou inexistente");
+    usuarioAtualizado.CatUsuID = Categoria.id;
   }
 
   const atualizado = await this.usuarioRepository.atualizarUsuarioporCPF(usuarioAtualizado);
   if (!atualizado) throw new Error("Falha ao atualizar o usuário");
 
    const cursoAtualizado = await this.cursoRepository.buscarCursoPorID(usuarioAtualizado.CursoID);
-   const categoriaAtualizada = CategoriaUsuario.buscarNomePorID(usuarioAtualizado.CatUsuID);
+   const categoriaAtualizada = await this.catUsuarioRepository.buscarCategoriaPorID(usuarioAtualizado.CatUsuID);
 
   return {
     id: usuarioAtualizado.id!,
@@ -121,7 +124,7 @@ export class UsuarioService {
     cpf: usuarioAtualizado.cpf,
     status: usuarioAtualizado.status,
     curso: cursoAtualizado?.nome ?? "Curso não encontrado",
-    categoria: categoriaAtualizada ?? "Categoria não encontrada",
+    categoria: categoriaAtualizada?.nome ?? "Categoria não encontrada",
   };
 }
 

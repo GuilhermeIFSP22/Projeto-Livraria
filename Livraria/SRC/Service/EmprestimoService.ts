@@ -5,6 +5,7 @@ import { EstoqueRepository } from "../Repository/EstoqueRepository";
 import { CategoriaLivro } from "../Model/CategoriaLivro";
 import { LivroRepository } from "../Repository/LivroRepository";
 import { CursoRepository } from "../Repository/CursoRepository";
+import { CatUsuarioRepository } from "../Repository/CatUsuarioRepository";
 
 enum StatusUsuario {
   Ativo = "ativo",
@@ -18,6 +19,7 @@ export class EmprestimoService {
   private estoqueRepository = EstoqueRepository.getInstance();
   private livroRepository = LivroRepository.getInstance();
   private cursoRepository = CursoRepository.getInstance();
+  private catUsuarioRepository: CatUsuarioRepository = CatUsuarioRepository.getInstance();
 
   listarEmprestimos(): Emprestimo[] {
     return this.emprestimoRepository.listarEmprestimos();
@@ -59,7 +61,9 @@ export class EmprestimoService {
     const emprestimosAtivos = this.emprestimoRepository.listarEmprestimos()
       .filter(e => e.UsuarioID === UsuarioID && e.data_entrega.getTime() === 0);
 
-    const categoria = usuario.getNomeCategoria();
+    const catUsuario= await this.catUsuarioRepository.buscarCategoriaPorID(usuario.CatUsuID);
+    const categoria = catUsuario?.nome.toLowerCase() ?? "";
+
     const limite = categoria === "professor" ? 5 : 3;
 
     if (emprestimosAtivos.length >= limite) {
@@ -79,7 +83,8 @@ export class EmprestimoService {
     const estoque = this.estoqueRepository.filtrarExemplarPorCodigo(emprestimo.EstoqueID);
     if (!usuario || !estoque) return undefined;
 
-    const categoria = usuario.getNomeCategoria();
+    const catUsuario= await this.catUsuarioRepository.buscarCategoriaPorID(usuario.CatUsuID);
+    const categoria = catUsuario?.nome.toLowerCase() ?? "";
     let diasPrazo = 0;
 
     if (categoria === "professor") {

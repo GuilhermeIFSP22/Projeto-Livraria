@@ -1,14 +1,14 @@
 import { CursoRepository } from "../Repository/CursoRepository";
 import { CategoriaLivro } from "../Model/CategoriaLivro";
-import { CategoriaUsuario } from "../Model/CategoriaUsuario";
+import { CatUsuarioRepository } from "./CatUsuarioRepository";
 
 CategoriaLivro.inicializarCategoriaLivro();
-CategoriaUsuario.inicializarCategoriaUsuario();
 
 export class CatalogoRepository{
     
     private static instance: CatalogoRepository | null = null;
     private cursoRepository = CursoRepository.getInstance();
+    private CatUsuarioRepository = CatUsuarioRepository.getInstance();
 
     private constructor() {}
 
@@ -23,11 +23,11 @@ export class CatalogoRepository{
         return CategoriaLivro.listaLivro;
       }  
       
-      listarCategoriaUsuario () : CategoriaUsuario[] {
-        return CategoriaUsuario.listaCatUsu;
-      }
+      async listarCategoriaUsuario(): Promise<{ id: number; nome: string }[]> {
+      return await this.CatUsuarioRepository.listarCategorias();
+    }
 
       async listarCurso(): Promise<{ id: number; nome: string }[]> {
-    return await this.cursoRepository.listarCursos();
+      return await this.cursoRepository.listarCursos();
     }
 }

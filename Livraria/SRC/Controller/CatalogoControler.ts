@@ -3,12 +3,12 @@ import { CatalogoService } from "../Service/CatalogoService";
 
 const usuarioService = new CatalogoService;
 
-export function ConsultarCategoriaUsuario(req: Request, res: Response) {
+export async function ConsultarCategoriaUsuario(req: Request, res: Response) {
         try {
-            const CategoriaUsuario = usuarioService.ConsultarCategoriaUsuario();
+            const categoriasUsuario = await usuarioService.ConsultarCategoriaUsuario();
             res.status(200).json({
-                mensagem: "Sucesso",
-                Usuarios: CategoriaUsuario,
+            mensagem: "Sucesso",
+            dados: categoriasUsuario,
             });
         } catch (error: any) {
             res.status(400).json({ mensagem: error.message });

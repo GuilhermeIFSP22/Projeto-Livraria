@@ -1,15 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsuarioService = void 0;
-const CategoriaUsuario_1 = require("../Model/CategoriaUsuario");
 const Usuario_1 = require("../Model/Usuario");
 const UsuarioRepository_1 = require("../Repository/UsuarioRepository");
 const EmprestimoRepository_1 = require("../Repository/EmprestimoRepository");
 const CursoRepository_1 = require("../Repository/CursoRepository");
+const CatUsuarioRepository_1 = require("../Repository/CatUsuarioRepository");
 class UsuarioService {
     usuarioRepository = UsuarioRepository_1.UsuarioRepository.getInstance();
     emprestimoRepository = EmprestimoRepository_1.EmprestimoRepository.getInstance();
     cursoRepository = CursoRepository_1.CursoRepository.getInstance();
+    catUsuarioRepository = CatUsuarioRepository_1.CatUsuarioRepository.getInstance();
     async cadastrarUsuario(usuarioData) {
         const { nome, cpf, CursoID, CatUsuID } = usuarioData;
         if (!nome || !cpf || !CursoID || !CatUsuID) {
@@ -22,6 +23,9 @@ class UsuarioService {
         const curso = await this.cursoRepository.buscarCursoPorID(CursoID);
         if (!curso)
             throw new Error("Curso inválido ou inexistente");
+        const categoria = await this.catUsuarioRepository.buscarCategoriaPorID(CatUsuID);
+        if (!categoria)
+            throw new Error("Categoria inválida ou inexistente");
         const novoUsuario = new Usuario_1.Usuario(nome, cpf, "ativo", CursoID, CatUsuID);
         const idGerado = await this.usuarioRepository.cadastrarUsuario(novoUsuario);
         novoUsuario.id = idGerado;
@@ -31,7 +35,7 @@ class UsuarioService {
             cpf: novoUsuario.cpf,
             status: novoUsuario.status,
             curso: curso.nome,
-            categoria: novoUsuario.getNomeCategoria(),
+            categoria: categoria.nome,
         };
     }
     async consultarUsuarios() {
@@ -39,14 +43,14 @@ class UsuarioService {
         const usuariosInstanciados = usuarios.map(u => new Usuario_1.Usuario(u.nome, u.cpf, u.status, u.CursoID, u.CatUsuID, u.id));
         return Promise.all(usuariosInstanciados.map(async (usuario) => {
             const curso = await this.cursoRepository.buscarCursoPorID(usuario.CursoID);
-            const categoria = CategoriaUsuario_1.CategoriaUsuario.buscarNomePorID(usuario.CatUsuID);
+            const categoria = await this.catUsuarioRepository.buscarCategoriaPorID(usuario.CatUsuID);
             return {
                 id: usuario.id,
                 nome: usuario.nome,
                 cpf: usuario.cpf,
                 status: usuario.status,
                 curso: curso?.nome ?? "Curso não encontrado",
-                categoria: categoria ?? "Categoria não encontrada",
+                categoria: categoria?.nome ?? "Categoria não encontrada",
             };
         }));
     }
@@ -55,14 +59,14 @@ class UsuarioService {
         if (!u)
             return undefined;
         const curso = await this.cursoRepository.buscarCursoPorID(u.CursoID);
-        const categoria = CategoriaUsuario_1.CategoriaUsuario.buscarNomePorID(u.CatUsuID);
+        const categoria = await this.catUsuarioRepository.buscarCategoriaPorID(u.CatUsuID);
         return {
             id: u.id,
             nome: u.nome,
             cpf: u.cpf,
             status: u.status,
             curso: curso?.nome ?? "Curso não encontrado",
-            categoria: categoria ?? "Categoria não encontrada",
+            categoria: categoria?.nome ?? "Categoria não encontrada",
         };
     }
     async atualizarUsuarioPorCPF(cpf, nome, cursoNome, categoriaNome) {
@@ -78,23 +82,23 @@ class UsuarioService {
             usuarioAtualizado.CursoID = curso.id;
         }
         if (categoriaNome) {
-            const idCategoria = CategoriaUsuario_1.CategoriaUsuario.buscarIDPorNome(categoriaNome);
-            if (!idCategoria)
+            const Categoria = await this.catUsuarioRepository.buscarCategoriaPorNome(categoriaNome);
+            if (!Categoria)
                 throw new Error("Categoria de usuário inválida ou inexistente");
-            usuarioAtualizado.CatUsuID = idCategoria;
+            usuarioAtualizado.CatUsuID = Categoria.id;
         }
         const atualizado = await this.usuarioRepository.atualizarUsuarioporCPF(usuarioAtualizado);
         if (!atualizado)
             throw new Error("Falha ao atualizar o usuário");
         const cursoAtualizado = await this.cursoRepository.buscarCursoPorID(usuarioAtualizado.CursoID);
-        const categoriaAtualizada = CategoriaUsuario_1.CategoriaUsuario.buscarNomePorID(usuarioAtualizado.CatUsuID);
+        const categoriaAtualizada = await this.catUsuarioRepository.buscarCategoriaPorID(usuarioAtualizado.CatUsuID);
         return {
             id: usuarioAtualizado.id,
             nome: usuarioAtualizado.nome,
             cpf: usuarioAtualizado.cpf,
             status: usuarioAtualizado.status,
             curso: cursoAtualizado?.nome ?? "Curso não encontrado",
-            categoria: categoriaAtualizada ?? "Categoria não encontrada",
+            categoria: categoriaAtualizada?.nome ?? "Categoria não encontrada",
         };
     }
     async removerUsuarioPorCPF(cpf) {
