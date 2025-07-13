@@ -95,19 +95,22 @@ class LivroService {
         if (!livro) {
             return "Livro não encontrado";
         }
-        const exemplar = this.estoqueRepository.listarEstoqueDisponivel()
-            .find(ex => ex.LivroID === livro.id);
+        const estoques = await this.estoqueRepository.listarEstoqueDisponivel();
+        const exemplar = estoques.find(ex => ex.LivroID === livro.id);
         if (!exemplar) {
             const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
             return removido ? "Livro removido com sucesso" : "Livro não encontrado";
         }
         const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
-            .some(e => e.EstoqueID === exemplar.Codigo &&
+            .some(e => e.EstoqueID === exemplar.id &&
             (!e.data_entrega || e.data_entrega.getTime?.() === 0));
         if (emprestimoAtivo) {
             return "Não é possível remover o livro, o exemplar está emprestado";
         }
-        this.estoqueRepository.removerUsuarioPorCodigo(exemplar.Codigo);
+        if (!exemplar.id) {
+            throw new Error("ID do exemplar inválido.");
+        }
+        await this.estoqueRepository.removerUsuarioPorCodigo(exemplar.id);
         const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
         return removido ? "Livro removido com sucesso" : "Livro não encontrado";
     }

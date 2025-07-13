@@ -7,9 +7,9 @@ exports.atualizarDispoPorCodigo = atualizarDispoPorCodigo;
 exports.RemoverExemplarPorCodigo = RemoverExemplarPorCodigo;
 const EstoqueService_1 = require("../Service/EstoqueService");
 const estoqueService = new EstoqueService_1.EstoqueService();
-function cadastrarEstoque(req, res) {
+async function cadastrarEstoque(req, res) {
     try {
-        const novoEstoque = estoqueService.cadastrarEstoque(req.body);
+        const novoEstoque = await estoqueService.cadastrarEstoque(req.body);
         res.status(201).json({
             mensagem: "Livro cadastrado no estoque com sucesso",
             Estoque: novoEstoque
@@ -19,20 +19,20 @@ function cadastrarEstoque(req, res) {
         res.status(400).json({ mensagem: error.message });
     }
 }
-function listarEstoqueDisponivel(req, res) {
+async function listarEstoqueDisponivel(req, res) {
     try {
-        const estoqueDisponivel = estoqueService.listarEstoqueDisponivel();
+        const estoqueDisponivel = await estoqueService.listarEstoqueDisponivel();
         res.status(200).json(estoqueDisponivel);
     }
     catch (error) {
         res.status(400).json({ erro: error.message || "Erro ao listar estoque disponível" });
     }
 }
-function ConsultarExemplarPorCodigo(req, res) {
+async function ConsultarExemplarPorCodigo(req, res) {
     const { Codigo } = req.params;
     const CodigoExemplar = Number(Codigo);
     try {
-        const estoque = estoqueService.ConsultarExemplarPorCodigo(CodigoExemplar);
+        const estoque = await estoqueService.ConsultarExemplarPorCodigo(CodigoExemplar);
         if (estoque) {
             res.status(200).json({
                 mensagem: "Livro encontrado no estoque com sucesso",
@@ -49,12 +49,12 @@ function ConsultarExemplarPorCodigo(req, res) {
         res.status(400).json({ mensagem: error.message });
     }
 }
-function atualizarDispoPorCodigo(req, res) {
+async function atualizarDispoPorCodigo(req, res) {
     const { Codigo } = req.params;
     const { disponivel } = req.body;
     const CodigoExemplar = Number(Codigo);
     try {
-        const DisponibilidadeAtualizado = estoqueService.AtualizarDispoPorCodigo(CodigoExemplar, disponivel);
+        const DisponibilidadeAtualizado = await estoqueService.AtualizarDispoPorCodigo(CodigoExemplar, disponivel);
         if (DisponibilidadeAtualizado) {
             res.status(200).json({
                 mensagem: "Exemplar atualizado com sucesso no estoque",
@@ -71,11 +71,11 @@ function atualizarDispoPorCodigo(req, res) {
         res.status(400).json({ mensagem: error.message });
     }
 }
-function RemoverExemplarPorCodigo(req, res) {
+async function RemoverExemplarPorCodigo(req, res) {
     const { Codigo } = req.params;
     const CodigoExemplar = Number(Codigo);
     try {
-        const resultado = estoqueService.RemoverExemplarPorCodigo(CodigoExemplar);
+        const resultado = await estoqueService.RemoverExemplarPorCodigo(CodigoExemplar);
         if (resultado === "Livro removido com sucesso") {
             res.status(200).json({
                 mensagem: resultado,

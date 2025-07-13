@@ -3,7 +3,6 @@ import { executarComandoSQL } from "../DataBase/mysql";
 export class CursoRepository {
 
   private static instance: CursoRepository;
-  private initialized: boolean = false;
 
   private constructor() {
     this.createTable();

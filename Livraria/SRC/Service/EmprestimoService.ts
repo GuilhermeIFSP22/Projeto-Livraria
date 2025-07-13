@@ -32,7 +32,7 @@ export class EmprestimoService {
       throw new Error("Usuário não encontrado.");
     }
 
-    const exemplar = this.estoqueRepository.filtrarExemplarPorCodigo(EstoqueID);
+    const exemplar = await this.estoqueRepository.filtrarExemplarPorCodigo(EstoqueID);
     if (!exemplar) {
       throw new Error("Exemplar não encontrado.");
     }
@@ -80,7 +80,7 @@ export class EmprestimoService {
     if (!emprestimo) return undefined;
 
     const usuario = await this.usuarioRepository.filtrarUsuarioporCPF(String(emprestimo.UsuarioID));
-    const estoque = this.estoqueRepository.filtrarExemplarPorCodigo(emprestimo.EstoqueID);
+    const estoque = await this.estoqueRepository.filtrarExemplarPorCodigo(emprestimo.EstoqueID);
     if (!usuario || !estoque) return undefined;
 
      const catUsuario = await this.catUsuarioRepository.buscarCategoriaPorID(usuario.CatUsuID);

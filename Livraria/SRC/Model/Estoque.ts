@@ -1,15 +1,12 @@
 export class Estoque{
 
-    private static ultimoID : number = 0;
-
-    id : number;
+    id?: number
     quantidade : number;
     quantidade_emprestada : number;
-    Codigo : number;
     LivroID : number;
     disponivel : boolean;
 
-    constructor(quantidade:number, quantidade_emprestada:number,Codigo:number,LivroID:number){
+    constructor(quantidade:number, quantidade_emprestada:number,LivroID:number,disponivel: boolean = true,id?: number){
 
         if (quantidade < 0) {
             throw new Error("Quantidade não pode ser negativa");
@@ -23,24 +20,15 @@ export class Estoque{
             throw new Error("Quantidade emprestada não pode ser maior que a quantidade total");
         }
 
-        if (Codigo <= 0) {
-            throw new Error("Código do exemplar deve ser maior que zero");
-        }
-
         if (LivroID <= 0) {
             throw new Error("LivroID inválido");
         }
         
         this.quantidade = quantidade,
         this.quantidade_emprestada= quantidade_emprestada;
-        this.Codigo = Codigo;
         this.LivroID = LivroID,
-        this.id = Estoque.incrementarID();
-        this.disponivel = true;
-    }
-
-    private static incrementarID(): number {
-        return ++Estoque.ultimoID;
+        this.disponivel = disponivel;
+        this.id = id;
     }
 
 }

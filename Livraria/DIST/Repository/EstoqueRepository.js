@@ -1,40 +1,85 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EstoqueRepository = void 0;
+const Estoque_1 = require("../Model/Estoque");
+const mysql_1 = require("../DataBase/mysql");
 class EstoqueRepository {
-    static instance = null;
-    ListaEstoque = [];
-    constructor() { }
+    static instance;
+    constructor() {
+        this.createTable();
+    }
     static getInstance() {
         if (!this.instance) {
             this.instance = new EstoqueRepository();
         }
         return this.instance;
     }
-    cadastrarEstoque(Estoque) {
-        this.ListaEstoque.push(Estoque);
-    }
-    listarEstoqueDisponivel() {
-        return this.ListaEstoque;
-    }
-    filtrarExemplarPorCodigo(CodigoExemplar) {
-        return this.ListaEstoque.find(Estoque => Estoque.Codigo === CodigoExemplar);
-    }
-    atualizarDispoExemplarPorCodigo(CodigoExemplar, disponivel) {
-        const index = this.ListaEstoque.findIndex(Estoque => Estoque.Codigo === CodigoExemplar);
-        if (index !== -1) {
-            this.ListaEstoque[index].disponivel = disponivel;
-            return this.ListaEstoque[index];
+    async createTable() {
+        const query = `
+          CREATE TABLE IF NOT EXISTS Livraria.Estoque (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            quantidade INT NOT NULL,
+            quantidade_emprestada INT NOT NULL,
+            disponivel BOOLEAN NOT NULL,
+            LivroID INT NOT NULL
+          )
+        `;
+        try {
+            await (0, mysql_1.executarComandoSQL)(query, []);
+            console.log("Tabela Estoque criada (ou já existia).");
         }
-        return undefined;
-    }
-    removerUsuarioPorCodigo(CodigoExemplar) {
-        const index = this.ListaEstoque.findIndex(Estoque => Estoque.Codigo === CodigoExemplar);
-        if (index !== -1) {
-            this.ListaEstoque.splice(index, 1);
-            return true;
+        catch (err) {
+            console.error("Erro ao criar a tabela Estoque:", err);
         }
-        return false;
+    }
+    async cadastrarEstoque(estoque) {
+        const query = `
+          INSERT INTO Livraria.Estoque 
+          (quantidade, quantidade_emprestada, LivroID, disponivel) 
+          VALUES (?, ?, ?, ?)
+        `;
+        const valores = [
+            estoque.quantidade,
+            estoque.quantidade_emprestada,
+            estoque.LivroID,
+            estoque.disponivel,
+            estoque.id,
+        ];
+        try {
+            await (0, mysql_1.executarComandoSQL)(query, valores);
+            console.log("Estoque cadastrado com sucesso!");
+        }
+        catch (err) {
+            console.error("Erro ao cadastrar estoque:", err);
+            throw err;
+        }
+    }
+    async listarEstoqueDisponivel() {
+        const query = `SELECT * FROM Livraria.Estoque`;
+        const resultado = await (0, mysql_1.executarComandoSQL)(query, []);
+        return resultado.map((registro) => new Estoque_1.Estoque(registro.quantidade, registro.quantidade_emprestada, registro.LivroID, Boolean(registro.disponivel), registro.id));
+    }
+    async filtrarExemplarPorCodigo(id) {
+        const query = `SELECT * FROM Livraria.Estoque WHERE id = ?`;
+        const resultado = await (0, mysql_1.executarComandoSQL)(query, [id]);
+        const registro = resultado[0];
+        if (!registro)
+            return undefined;
+        return new Estoque_1.Estoque(registro.quantidade, registro.quantidade_emprestada, registro.LivroID, registro.disponivel, registro.id);
+    }
+    async atualizarDispoExemplarPorCodigo(id, disponivel) {
+        const query = `
+        UPDATE Livraria.Estoque
+        SET disponivel = ?
+        WHERE id = ?
+      `;
+        await (0, mysql_1.executarComandoSQL)(query, [disponivel, id]);
+        return this.filtrarExemplarPorCodigo(id);
+    }
+    async removerUsuarioPorCodigo(id) {
+        const query = `DELETE FROM Livraria.Estoque WHERE id = ?`;
+        const resultado = await (0, mysql_1.executarComandoSQL)(query, [id]);
+        return resultado.affectedRows > 0;
     }
 }
 exports.EstoqueRepository = EstoqueRepository;

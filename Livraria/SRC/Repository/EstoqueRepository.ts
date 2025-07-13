@@ -1,11 +1,13 @@
 import { Estoque } from "../Model/Estoque";
+import { executarComandoSQL } from "../DataBase/mysql";
 
 export class EstoqueRepository{
     
-    private static instance: EstoqueRepository | null = null;
-    private ListaEstoque: Estoque[] = [];
+    private static instance: EstoqueRepository;
 
-    private constructor() {}
+    private constructor() {
+    this.createTable();
+  }
 
     public static getInstance(): EstoqueRepository {
         if (!this.instance) {
@@ -14,35 +16,90 @@ export class EstoqueRepository{
         return this.instance;
     }
 
-      cadastrarEstoque (Estoque : Estoque){
-        this.ListaEstoque.push(Estoque);
-      }
-    
-      listarEstoqueDisponivel () : Estoque[] {
-        return this.ListaEstoque;
-      }
-
-      filtrarExemplarPorCodigo (CodigoExemplar:number) : Estoque | undefined {
-        return this.ListaEstoque.find (Estoque => Estoque.Codigo === CodigoExemplar);
-      }
-
-      atualizarDispoExemplarPorCodigo (CodigoExemplar:number, disponivel:boolean) : Estoque | undefined {
-        const index = this.ListaEstoque.findIndex (Estoque => Estoque.Codigo === CodigoExemplar)
-        if (index !== -1) {
-          this.ListaEstoque[index].disponivel = disponivel;
-          return this.ListaEstoque[index];
+    private async createTable() {
+        const query = `
+          CREATE TABLE IF NOT EXISTS Livraria.Estoque (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            quantidade INT NOT NULL,
+            quantidade_emprestada INT NOT NULL,
+            disponivel BOOLEAN NOT NULL,
+            LivroID INT NOT NULL
+          )
+        `;
+        try {
+          await executarComandoSQL(query, []);
+          console.log("Tabela Estoque criada (ou já existia).");
+        } catch (err) {
+          console.error("Erro ao criar a tabela Estoque:", err);
         }
-        return undefined;
     }
 
-    removerUsuarioPorCodigo(CodigoExemplar: number) : boolean {
-      const index = this.ListaEstoque.findIndex (Estoque => Estoque.Codigo === CodigoExemplar);
+      async cadastrarEstoque (estoque : Estoque): Promise<void>{
+          const query = `
+          INSERT INTO Livraria.Estoque 
+          (quantidade, quantidade_emprestada, LivroID, disponivel) 
+          VALUES (?, ?, ?, ?)
+        `;
+        const valores = [
+          estoque.quantidade,
+          estoque.quantidade_emprestada,
+          estoque.LivroID,
+          estoque.disponivel,
+          estoque.id,
+        ];
 
-        if (index !== -1) {
-          
-          this.ListaEstoque.splice(index, 1);
-          return true
+        try {
+          await executarComandoSQL(query, valores);
+          console.log("Estoque cadastrado com sucesso!");
+        } catch (err) {
+          console.error("Erro ao cadastrar estoque:", err);
+          throw err;
         }
-        return false
+    }
+
+      async listarEstoqueDisponivel () : Promise<Estoque[]> {
+        const query = `SELECT * FROM Livraria.Estoque`;
+        const resultado = await executarComandoSQL(query, []);
+
+        return resultado.map((registro: any) => new Estoque(
+          registro.quantidade,
+          registro.quantidade_emprestada,
+          registro.LivroID,
+          Boolean(registro.disponivel),
+          registro.id,
+        ));
+    }
+  
+      async filtrarExemplarPorCodigo (id:number) : Promise<Estoque | undefined> {
+        const query = `SELECT * FROM Livraria.Estoque WHERE id = ?`;
+        const resultado = await executarComandoSQL(query, [id]);
+        const registro = resultado[0];
+
+        if (!registro) return undefined;
+
+        return new Estoque(
+          registro.quantidade,
+          registro.quantidade_emprestada,
+          registro.LivroID,
+          registro.disponivel,
+          registro.id,
+        );
       }
+
+      async atualizarDispoExemplarPorCodigo (id:number, disponivel:boolean) : Promise<Estoque | undefined> {
+        const query = `
+        UPDATE Livraria.Estoque
+        SET disponivel = ?
+        WHERE id = ?
+      `;
+        await executarComandoSQL(query, [disponivel, id]);
+
+        return this.filtrarExemplarPorCodigo(id);
+    }
+
+    async removerUsuarioPorCodigo(id: number) : Promise<boolean> {
+      const query = `DELETE FROM Livraria.Estoque WHERE id = ?`;
+      const resultado = await executarComandoSQL(query, [id]);
+      return resultado.affectedRows > 0;
+    }
 }

@@ -10,40 +10,35 @@ class EstoqueService {
     livroRepository = LivroRepository_1.LivroRepository.getInstance();
     emprestimoRepository = EmprestimoRepository_1.EmprestimoRepository.getInstance();
     async cadastrarEstoque(EstoqueData) {
-        const { quantidade, quantidade_emprestada, Codigo, ISBN, disponivel } = EstoqueData;
-        if (!ISBN || Codigo === undefined) {
+        const { quantidade, quantidade_emprestada, ISBN, disponivel } = EstoqueData;
+        if (!ISBN === undefined) {
             throw new Error("Campos obrigatórios ausentes: ISBN do livro e código do exemplar");
         }
         const livro = await this.livroRepository.filtrarLivroPorISBN(ISBN);
         if (!livro) {
             throw new Error("Livro com o ISBN fornecido não encontrado");
         }
-        const exemplarExistente = this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
-        if (exemplarExistente) {
-            throw new Error("Já existe um exemplar com esse código");
-        }
-        const novoEstoque = new Estoque_1.Estoque(quantidade ?? 1, quantidade_emprestada ?? 0, Codigo, livro.id);
-        novoEstoque.disponivel = disponivel ?? true;
-        this.EstoqueRepository.cadastrarEstoque(novoEstoque);
+        const novoEstoque = new Estoque_1.Estoque(quantidade ?? 1, quantidade_emprestada ?? 0, livro.id, disponivel);
+        await this.EstoqueRepository.cadastrarEstoque(novoEstoque);
         return novoEstoque;
     }
-    listarEstoqueDisponivel() {
-        const todosEstoques = this.EstoqueRepository.listarEstoqueDisponivel();
+    async listarEstoqueDisponivel() {
+        const todosEstoques = await this.EstoqueRepository.listarEstoqueDisponivel();
         return todosEstoques.filter(estoque => estoque.disponivel === true);
     }
-    ConsultarExemplarPorCodigo(Codigo) {
+    async ConsultarExemplarPorCodigo(Codigo) {
         return this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
     }
-    AtualizarDispoPorCodigo(Codigo, disponivel) {
-        const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
+    async AtualizarDispoPorCodigo(Codigo, disponivel) {
+        const exemplar = await this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
         if (!exemplar) {
             console.log("Exemplar não encontrado");
             return undefined;
         }
         exemplar.disponivel = disponivel;
-        return this.EstoqueRepository.atualizarDispoExemplarPorCodigo(Codigo, disponivel);
+        return await this.EstoqueRepository.atualizarDispoExemplarPorCodigo(Codigo, disponivel);
     }
-    RemoverExemplarPorCodigo(Codigo) {
+    async RemoverExemplarPorCodigo(Codigo) {
         const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
         if (!exemplar) {
             return "Exemplar não encontrado";
@@ -54,7 +49,7 @@ class EstoqueService {
         if (emprestimoAtivo) {
             return "Não é possível remover o exemplar, ele está emprestado";
         }
-        const removido = this.EstoqueRepository.removerUsuarioPorCodigo(Codigo);
+        const removido = await this.EstoqueRepository.removerUsuarioPorCodigo(Codigo);
         return removido ? "Exemplar removido com sucesso" : "Erro ao remover exemplar";
     }
 }

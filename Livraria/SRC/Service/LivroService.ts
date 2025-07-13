@@ -142,8 +142,8 @@ export class LivroService{
             }
 
 
-        const exemplar = this.estoqueRepository.listarEstoqueDisponivel()
-            .find(ex => ex.LivroID === livro.id);
+        const estoques = await this.estoqueRepository.listarEstoqueDisponivel()
+        const exemplar = estoques.find(ex => ex.LivroID === livro.id);
 
             if (!exemplar) {
                 const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
@@ -152,7 +152,7 @@ export class LivroService{
  
         const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
             .some(e => 
-                e.EstoqueID === exemplar.Codigo && 
+                e.EstoqueID === exemplar.id && 
                 (!e.data_entrega || e.data_entrega.getTime?.() === 0)
             );
 
@@ -160,7 +160,10 @@ export class LivroService{
                 return "Não é possível remover o livro, o exemplar está emprestado";
             }
 
-        this.estoqueRepository.removerUsuarioPorCodigo(exemplar.Codigo);
+        if (!exemplar.id) {
+        throw new Error("ID do exemplar inválido.");
+}
+        await this.estoqueRepository.removerUsuarioPorCodigo(exemplar.id);
         const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
 
         return removido ? "Livro removido com sucesso" : "Livro não encontrado";
