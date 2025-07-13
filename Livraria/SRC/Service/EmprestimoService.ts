@@ -22,31 +22,31 @@ export class EmprestimoService {
     return this.emprestimoRepository.listarEmprestimos();
   }
 
-  registrarEmprestimo(data_emprestimo: Date,CPF:string, UsuarioID: number, EstoqueID: number): Emprestimo {
-    const usuario = this.usuarioRepository.filtrarUsuarioporCPF(CPF)
-        if (!usuario) {
+  async registrarEmprestimo(data_emprestimo: Date, CPF: string, UsuarioID: number, EstoqueID: number): Promise<Emprestimo> {
+    const usuario = await this.usuarioRepository.filtrarUsuarioporCPF(CPF);
+    if (!usuario) {
       throw new Error("Usuário não encontrado.");
-      }
+    }
 
-      const exemplar = this.estoqueRepository.filtrarExemplarPorCodigo(EstoqueID);
-        if (!exemplar) {
-          throw new Error("Exemplar não encontrado.");
-        }
-        if (!exemplar.disponivel) {
-          throw new Error("Este exemplar não está disponível para empréstimo.");
-        }
+    const exemplar = this.estoqueRepository.filtrarExemplarPorCodigo(EstoqueID);
+    if (!exemplar) {
+      throw new Error("Exemplar não encontrado.");
+    }
+    if (!exemplar.disponivel) {
+      throw new Error("Este exemplar não está disponível para empréstimo.");
+    }
 
-      const hoje = new Date();
-      const emprestimosSuspensos = this.emprestimoRepository.listarEmprestimos()
-        .filter(e => e.UsuarioID === usuario.id && e.suspensao_ate && e.suspensao_ate > hoje);
+    const hoje = new Date();
+    const emprestimosSuspensos = this.emprestimoRepository.listarEmprestimos()
+      .filter(e => e.UsuarioID === usuario.id && e.suspensao_ate && e.suspensao_ate > hoje);
 
-      if (emprestimosSuspensos.length > 0) {
-        throw new Error(`Usuário está suspenso até ${emprestimosSuspensos[0].suspensao_ate.toLocaleDateString()} e não pode realizar empréstimos.`);
-      }
+    if (emprestimosSuspensos.length > 0) {
+      throw new Error(`Usuário está suspenso até ${emprestimosSuspensos[0].suspensao_ate.toLocaleDateString()} e não pode realizar empréstimos.`);
+    }
 
-      if (usuario.status !== "ativo") {
+    if (usuario.status !== "ativo") {
       throw new Error("Usuário não está ativo para realizar empréstimos.");
-      }
+    }
 
     const emprestimoExistente = this.emprestimoRepository.listarEmprestimos()
       .find(e => e.EstoqueID === EstoqueID && e.data_entrega.getTime() === 0);
@@ -58,7 +58,7 @@ export class EmprestimoService {
     const emprestimosAtivos = this.emprestimoRepository.listarEmprestimos()
       .filter(e => e.UsuarioID === UsuarioID && e.data_entrega.getTime() === 0);
 
-    const categoria = usuario.getNomeCategoria(); 
+    const categoria = usuario.getNomeCategoria();
     const limite = categoria === "professor" ? 5 : 3;
 
     if (emprestimosAtivos.length >= limite) {
@@ -70,29 +70,28 @@ export class EmprestimoService {
     return novoEmprestimo;
   }
 
-  registrarDevolucao(idEmprestimo: number, dataEntrega: Date): Emprestimo | undefined {
+  async registrarDevolucao(idEmprestimo: number, dataEntrega: Date): Promise<Emprestimo | undefined> {
     const emprestimo = this.emprestimoRepository.registrarDevolucao(idEmprestimo, dataEntrega);
     if (!emprestimo) return undefined;
 
-    const usuario = this.usuarioRepository.filtrarUsuarioporCPF(String(emprestimo.UsuarioID));
+    const usuario = await this.usuarioRepository.filtrarUsuarioporCPF(String(emprestimo.UsuarioID));
     const estoque = this.estoqueRepository.filtrarExemplarPorCodigo(emprestimo.EstoqueID);
     if (!usuario || !estoque) return undefined;
 
     const categoria = usuario.getNomeCategoria();
     let diasPrazo = 0;
-4
+
     if (categoria === "professor") {
       diasPrazo = 40;
     } else {
-      
-    const livro = this.livroRepository.listarLivros({ id: estoque.LivroID })[0]; 
-    if (!livro) return undefined;
+      const livro = this.livroRepository.listarLivros({ id: estoque.LivroID })[0];
+      if (!livro) return undefined;
 
-    const cursoCategoria = Curso.buscarNomePorID(usuario.CursoID).toLowerCase();
-    const livroCategoria = CategoriaLivro.buscarNomePorID(livro.CategoriaID).toLowerCase(); 
+      const cursoCategoria = Curso.buscarNomePorID(usuario.CursoID).toLowerCase();
+      const livroCategoria = CategoriaLivro.buscarNomePorID(livro.CategoriaID).toLowerCase();
 
-    diasPrazo = cursoCategoria === livroCategoria ? 30 : 15;
-  }
+      diasPrazo = cursoCategoria === livroCategoria ? 30 : 15;
+    }
 
     const dataLimite = new Date(emprestimo.data_emprestimo);
     dataLimite.setDate(dataLimite.getDate() + diasPrazo);
@@ -105,22 +104,10 @@ export class EmprestimoService {
       const dataSuspensao = new Date(dataEntrega);
       dataSuspensao.setDate(dataEntrega.getDate() + diasSuspensao);
       emprestimo.suspensao_ate = dataSuspensao;
-
-      if (diasSuspensao > 60) usuario.status = "suspenso";
-
-      const atrasos = this.emprestimoRepository.listarEmprestimos()
-        .filter(e => e.UsuarioID === usuario.id && e.dias_atraso > 0);
-
-      if (atrasos.length > 2) {
-        usuario.status = "inativo";
-      }
-
-      this.usuarioRepository.atualizarUsuarioporCPF(usuario);
     } else {
       emprestimo.dias_atraso = 0;
       emprestimo.suspensao_ate = new Date(0);
     }
-
     return emprestimo;
   }
 }

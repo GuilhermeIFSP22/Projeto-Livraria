@@ -11,6 +11,7 @@ atualizarStatusUsuariosPorSuspensao();
 
 setInterval(() => {
   atualizarStatusUsuariosPorSuspensao();
+  
 }, 5 * 60 * 1000);
 
 const app = express();

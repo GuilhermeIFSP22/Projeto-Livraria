@@ -23,10 +23,6 @@ export class LivroService{
 
         cadastrarLivro (LivroData:any) : LivroResposta {
             const {titulo, autor, editora, edicao,isbn, categoria} = LivroData;
-            if(!titulo || !isbn || !autor || !editora || !edicao || !isbn || !categoria){
-                throw new Error ("Informações incompletas");
-            }
-
             const livrosExistentes = this.LivroRepository.listarLivros();
             const livroDuplicado = livrosExistentes.find(l =>
                 l.autor === autor && l.editora === editora && l.edicao === edicao
@@ -34,11 +30,6 @@ export class LivroService{
 
             if (livroDuplicado) {
                 throw new Error("Já existe um livro cadastrado com essa combinação de autor, editora e edição.");
-            }
-
-            const nomeCategoria = CategoriaLivro.buscarNomePorID(categoria);
-            if (!nomeCategoria) {
-                throw new Error("Categoria inválida.");
             }
 
             const novoLivro = new Livro (titulo,autor,editora,edicao,isbn,categoria);

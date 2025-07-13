@@ -12,6 +12,23 @@ export class Emprestimo{
      EstoqueID: number;
      
      constructor(data_emprestimo:Date, UsuarioID:number,EstoqueID:number){
+
+         if (!(data_emprestimo instanceof Date) || isNaN(data_emprestimo.getTime())) {
+        throw new Error("Data de empréstimo inválida");
+        }
+        const hoje = new Date();
+        if (data_emprestimo > hoje) {
+        throw new Error("Data de empréstimo não pode ser futura");
+        }
+
+        if (!UsuarioID || UsuarioID <= 0) {
+        throw new Error("ID do usuário inválido");
+        }
+
+        if (!EstoqueID || EstoqueID <= 0) {
+        throw new Error("ID do exemplar inválido");
+        }
+
          this.data_emprestimo = data_emprestimo;
          this.id = Emprestimo.incrementarID();
          this.UsuarioID = UsuarioID;

@@ -2,162 +2,127 @@ import { CategoriaUsuario } from "../Model/CategoriaUsuario";
 import { Curso } from "../Model/Curso";
 import { Usuario } from "../Model/Usuario";
 import { UsuarioRepository } from "../Repository/UsuarioRepository";
-import { validarCPF } from "../untils/ValidarCPF";
 import { EmprestimoRepository } from "../Repository/EmprestimoRepository";
 
-type UsuarioResposta = {
-    id: number;
-    nome: string;
-    cpf: string;
-    status: string;
-    curso: string;
-    categoria: String;
-};
+interface UsuarioResposta {
+  id: number;
+  nome: string;
+  cpf: string;
+  status: string;
+  curso: string;
+  categoria: string;
+}
 
-export class UsuarioService{
+export class UsuarioService {
+  private usuarioRepository = UsuarioRepository.getInstance();
+  private emprestimoRepository = EmprestimoRepository.getInstance();
 
-    UsuarioRepository : UsuarioRepository = UsuarioRepository.getInstance();
-    EmprestimoRepository : EmprestimoRepository = EmprestimoRepository.getInstance();
+  async cadastrarUsuario(usuarioData: any): Promise<UsuarioResposta> {
+    const { nome, cpf, CursoID, CatUsuID } = usuarioData;
 
-    CadastrarUsuario (UsuarioData:any) : UsuarioResposta {
-        const {nome, cpf, CursoID, CatUsuID} = UsuarioData;
-        if(!nome || !cpf || !CursoID || !CatUsuID){
-            throw new Error ("Informações incompletas");
-        }
-
-        if (!validarCPF(cpf)) {
-        throw new Error("CPF inválido");
-        }
-
-        const usuarioExistente = this.UsuarioRepository.filtrarUsuarioporCPF(cpf);
-        if (usuarioExistente) {
-        throw new Error("Já existe um usuário com este CPF");
-        }
-
-        const nomeCurso = Curso.buscarNomePorID(CursoID);
-        if (!nomeCurso) {
-            throw new Error("Curso inválido ou inexistente");
-        }
-
-        const nomeCategoria = CategoriaUsuario.buscarNomePorID(CatUsuID);
-        if (!nomeCategoria) {
-            throw new Error("Categoria de usuário inválida ou inexistente");
-        }
-
-        const novoUsuario = new Usuario (nome,cpf,"ativo",CursoID,CatUsuID);
-        this.UsuarioRepository.cadastrarUsuario(novoUsuario);
-       
-        return {
-            id: novoUsuario.id,
-            nome: novoUsuario.nome,
-            cpf: novoUsuario.cpf,
-            status: novoUsuario.status,
-            curso: nomeCurso,
-            categoria: nomeCategoria
-        };
+    if (!nome || !cpf || !CursoID || !CatUsuID) {
+      throw new Error("Informações incompletas");
     }
 
-    ConsultarUsuarios () : any[]  {
-        const usuarios = this.UsuarioRepository.listarUsuarios();
-        
-        return usuarios.map(usuario =>{
-            
-              const nomeCurso = Curso.buscarNomePorID(usuario.CursoID);
-              const nomeCategoria = CategoriaUsuario.buscarNomePorID(usuario.CatUsuID);
-          
-              return {
-                id: usuario.id,
-                nome: usuario.nome,
-                cpf: usuario.cpf,
-                status: usuario.status,
-                curso: nomeCurso,
-                categoria: nomeCategoria
-              };
-            });
-          }
-
-          ConsultarUsuarioPorCPF(CPF: any): any | undefined {
-            const usuario = this.UsuarioRepository.filtrarUsuarioporCPF(CPF);
-          
-            if (!usuario) return undefined;
-          
-            const nomeCurso = Curso.buscarNomePorID(usuario.CursoID);
-            const nomeCategoria = CategoriaUsuario.buscarNomePorID(usuario.CatUsuID);
-          
-            return {
-              id: usuario.id,
-              nome: usuario.nome,
-              cpf: usuario.cpf,
-              status: usuario.status,
-              curso: nomeCurso,
-              categoria: nomeCategoria
-            };
-          }
-
-    AtualizarUsuarioPorCPF(CPF: any, nome?: string, cursoNome?: string, categoriaNome?: string): UsuarioResposta | undefined {
-        const usuario = this.UsuarioRepository.filtrarUsuarioporCPF(CPF);
-
-        if (!usuario) {
-            console.log("Usuário não encontrado");
-            return undefined;
-        }
-
-        if (nome) {
-            usuario.nome = nome;
-        }
-
-        if (cursoNome) {
-            const idCurso = Curso.buscarIDPorNome(cursoNome);
-            if (!idCurso) throw new Error("Curso inválido ou inexistente");
-            usuario.CursoID = idCurso;
-        }
-
-        if (categoriaNome) {
-            const idCategoria = CategoriaUsuario.buscarIDPorNome(categoriaNome);
-            if (!idCategoria) throw new Error("Categoria de usuário inválida ou inexistente");
-            usuario.CatUsuID = idCategoria;
-        }
-
-        const atualizado = this.UsuarioRepository.atualizarUsuarioporCPF(usuario);
-
-        if (!atualizado) {
-        throw new Error("Falha ao atualizar o usuário");
-}
-        const nomeCurso = Curso.buscarNomePorID(atualizado.CursoID);
-        const nomeCategoria = CategoriaUsuario.buscarNomePorID(atualizado.CatUsuID);
-
-        return {
-            id: atualizado.id,
-            nome: atualizado.nome,
-            cpf: atualizado.cpf,
-            status: atualizado.status,
-            curso: nomeCurso,
-            categoria: nomeCategoria
-        };
-}
-
-   RemoverUsuarioPorCPF(CPF: string): string {
-        const usuario = this.UsuarioRepository.filtrarUsuarioporCPF(CPF);
-
-        if (!usuario) {
-            return "Usuário não encontrado";
-        }
-
-        const emprestimosAtivos = this.EmprestimoRepository.listarEmprestimos()
-            .filter(e => e.UsuarioID === usuario.id && e.data_entrega.getTime() === 0);
-
-        if (emprestimosAtivos.length > 0) {
-            return "Usuário possui empréstimos ativos e não pode ser removido";
-        }
-
-        const removido = this.UsuarioRepository.removerUsuarioporCPF(CPF);
-
-        if (removido) {
-            return "Usuário removido com sucesso";
-        } else {
-            return "Falha ao remover usuário";
-        }
+    const usuarioExistente = await this.usuarioRepository.filtrarUsuarioporCPF(cpf);
+    if (usuarioExistente) {
+      throw new Error("Já existe um usuário com este CPF");
     }
+
+    const novoUsuario = new Usuario(nome, cpf, "ativo", CursoID, CatUsuID);
+    const idGerado = await this.usuarioRepository.cadastrarUsuario(novoUsuario);
+    novoUsuario.id = idGerado;
+
+    return {
+      id: novoUsuario.id,
+      nome: novoUsuario.nome,
+      cpf: novoUsuario.cpf,
+      status: novoUsuario.status,
+      curso: novoUsuario.getNomeCurso(),
+      categoria: novoUsuario.getNomeCategoria(),
+    };
+  }
+
+  async consultarUsuarios(): Promise<UsuarioResposta[]> {
+  const usuarios = await this.usuarioRepository.listarUsuarios();
+
+  const usuariosInstanciados = usuarios.map(u => 
+    new Usuario(u.nome, u.cpf, u.status, u.CursoID, u.CatUsuID, u.id)
+  );
+
+  return usuariosInstanciados.map(usuario => ({
+    id: usuario.id!,
+    nome: usuario.nome,
+    cpf: usuario.cpf,
+    status: usuario.status,
+    curso: usuario.getNomeCurso(),
+    categoria: usuario.getNomeCategoria(),
+  }));
 }
 
+  async consultarUsuarioPorCPF(cpf: string): Promise<UsuarioResposta | undefined> {
+  const u = await this.usuarioRepository.filtrarUsuarioporCPF(cpf);
+  
+  if (!u) return undefined;
 
+  const usuario = new Usuario(u.nome, u.cpf, u.status, u.CursoID, u.CatUsuID, u.id);
+
+  return {
+    id: usuario.id!,
+    nome: usuario.nome,
+    cpf: usuario.cpf,
+    status: usuario.status,
+    curso: usuario.getNomeCurso(),
+    categoria: usuario.getNomeCategoria(),
+  };
+}
+
+  async atualizarUsuarioPorCPF(cpf: string, nome?: string, cursoNome?: string, categoriaNome?: string): Promise<UsuarioResposta | undefined> {
+  const u = await this.usuarioRepository.filtrarUsuarioporCPF(cpf);
+  
+  if (!u) return undefined;
+
+  if (nome) u.nome = nome;
+
+  if (cursoNome) {
+    const idCurso = Curso.buscarIDPorNome(cursoNome);
+    if (!idCurso) throw new Error("Curso inválido ou inexistente");
+    u.CursoID = idCurso;
+  }
+
+  if (categoriaNome) {
+    const idCategoria = CategoriaUsuario.buscarIDPorNome(categoriaNome);
+    if (!idCategoria) throw new Error("Categoria de usuário inválida ou inexistente");
+    u.CatUsuID = idCategoria;
+  }
+
+  const atualizado = await this.usuarioRepository.atualizarUsuarioporCPF(u);
+  if (!atualizado) throw new Error("Falha ao atualizar o usuário");
+
+  const usuarioAtualizado = new Usuario(atualizado.nome, atualizado.cpf, atualizado.status, atualizado.CursoID, atualizado.CatUsuID, atualizado.id);
+
+  return {
+    id: usuarioAtualizado.id!,
+    nome: usuarioAtualizado.nome,
+    cpf: usuarioAtualizado.cpf,
+    status: usuarioAtualizado.status,
+    curso: usuarioAtualizado.getNomeCurso(),
+    categoria: usuarioAtualizado.getNomeCategoria(),
+  };
+}
+
+  async removerUsuarioPorCPF(cpf: string): Promise<string> {
+    const usuario = await this.usuarioRepository.filtrarUsuarioporCPF(cpf);
+    if (!usuario) return "Usuário não encontrado";
+
+    const emprestimos = await this.emprestimoRepository.listarEmprestimos();
+    const emprestimosAtivos = emprestimos.filter(e => e.UsuarioID === usuario.id && e.data_entrega.getTime() === 0);
+
+    if (emprestimosAtivos.length > 0) {
+      return "Usuário possui empréstimos ativos e não pode ser removido";
+    }
+
+    const removido = await this.usuarioRepository.removerUsuarioporCPF(cpf);
+    return removido ? "Usuário removido com sucesso" : "Falha ao remover usuário";
+  }
+}
