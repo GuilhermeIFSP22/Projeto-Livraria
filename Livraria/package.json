@@ -13,9 +13,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "-": "^0.0.1",
     "@types/express": "^5.0.3",
     "@types/node": "^22.15.30",
     "express": "^5.1.0",
-    "ts-node": "^10.9.2"
+    "swagger": "^0.7.5",
+    "ts-node": "^10.9.2",
+    "tsoa": "^6.6.0",
+    "ui": "^0.2.4"
   }
 }
