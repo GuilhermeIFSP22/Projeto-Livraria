@@ -17,9 +17,9 @@ async function ConsultarCategoriaUsuario(req, res) {
         res.status(400).json({ mensagem: error.message });
     }
 }
-function ConsultarCategoriaLivro(req, res) {
+async function ConsultarCategoriaLivro(req, res) {
     try {
-        const CategoriaLivro = usuarioService.ConsultarCategoriaLivro();
+        const CategoriaLivro = await usuarioService.ConsultarCategoriaLivro();
         res.status(200).json({
             mensagem: "Sucesso",
             Usuarios: CategoriaLivro,

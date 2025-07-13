@@ -2,13 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CatalogoRepository = void 0;
 const CursoRepository_1 = require("../Repository/CursoRepository");
-const CategoriaLivro_1 = require("../Model/CategoriaLivro");
 const CatUsuarioRepository_1 = require("./CatUsuarioRepository");
-CategoriaLivro_1.CategoriaLivro.inicializarCategoriaLivro();
+const CatLivroRepository_1 = require("./CatLivroRepository");
 class CatalogoRepository {
     static instance = null;
     cursoRepository = CursoRepository_1.CursoRepository.getInstance();
     CatUsuarioRepository = CatUsuarioRepository_1.CatUsuarioRepository.getInstance();
+    CatLivroRepository = CatLivroRepository_1.CatLivroRepository.getInstance();
     constructor() { }
     static getInstance() {
         if (!this.instance) {
@@ -16,8 +16,8 @@ class CatalogoRepository {
         }
         return this.instance;
     }
-    listarCategoriaLivro() {
-        return CategoriaLivro_1.CategoriaLivro.listaLivro;
+    async listarCategoriaLivro() {
+        return await this.CatLivroRepository.listarCatLivro();
     }
     async listarCategoriaUsuario() {
         return await this.CatUsuarioRepository.listarCategorias();

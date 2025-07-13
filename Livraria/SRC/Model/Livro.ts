@@ -1,7 +1,5 @@
 import { CategoriaLivro } from "./CategoriaLivro";
 
-CategoriaLivro.inicializarCategoriaLivro();
-
 export class Livro{
 
     private static ultimoID : number = 0;
@@ -20,11 +18,6 @@ export class Livro{
                 throw new Error ("Informações incompletas");
             }
 
-        const nomeCategoria = CategoriaLivro.buscarNomePorID(CategoriaID);
-            if (!nomeCategoria) {
-                throw new Error("Categoria inválida.");
-            }
-
         this.titulo = titulo;
         this.autor = autor;
         this.editora = editora;
@@ -37,9 +30,4 @@ export class Livro{
     private static incrementarID(): number {
         return ++Livro.ultimoID;
     }
-
-    getNomeCategoriaLivro(): string {
-            return CategoriaLivro.buscarNomePorID(this.CategoriaID);
-          }
-
 }

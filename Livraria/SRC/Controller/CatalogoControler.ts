@@ -15,9 +15,9 @@ export async function ConsultarCategoriaUsuario(req: Request, res: Response) {
         }
     }
 
-export function ConsultarCategoriaLivro(req: Request, res: Response) {
+export async function ConsultarCategoriaLivro(req: Request, res: Response) {
         try {
-            const CategoriaLivro = usuarioService.ConsultarCategoriaLivro();
+            const CategoriaLivro = await usuarioService.ConsultarCategoriaLivro();
             res.status(200).json({
                 mensagem: "Sucesso",
                 Usuarios: CategoriaLivro,

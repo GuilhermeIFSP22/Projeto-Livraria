@@ -5,10 +5,10 @@ const Emprestimo_1 = require("../Model/Emprestimo");
 const EmprestimoRepository_1 = require("../Repository/EmprestimoRepository");
 const UsuarioRepository_1 = require("../Repository/UsuarioRepository");
 const EstoqueRepository_1 = require("../Repository/EstoqueRepository");
-const CategoriaLivro_1 = require("../Model/CategoriaLivro");
 const LivroRepository_1 = require("../Repository/LivroRepository");
 const CursoRepository_1 = require("../Repository/CursoRepository");
 const CatUsuarioRepository_1 = require("../Repository/CatUsuarioRepository");
+const CatLivroRepository_1 = require("../Repository/CatLivroRepository");
 var StatusUsuario;
 (function (StatusUsuario) {
     StatusUsuario["Ativo"] = "ativo";
@@ -22,6 +22,7 @@ class EmprestimoService {
     livroRepository = LivroRepository_1.LivroRepository.getInstance();
     cursoRepository = CursoRepository_1.CursoRepository.getInstance();
     catUsuarioRepository = CatUsuarioRepository_1.CatUsuarioRepository.getInstance();
+    CatLivroRepository = CatLivroRepository_1.CatLivroRepository.getInstance();
     listarEmprestimos() {
         return this.emprestimoRepository.listarEmprestimos();
     }
@@ -85,8 +86,9 @@ class EmprestimoService {
             if (!curso)
                 throw new Error("Curso não encontrado");
             const cursoCategoria = curso.nome.toLowerCase();
-            const livroCategoria = CategoriaLivro_1.CategoriaLivro.buscarNomePorID(livro.CategoriaID).toLowerCase();
-            diasPrazo = cursoCategoria === livroCategoria ? 30 : 15;
+            const liv = await this.CatLivroRepository.buscarCatLivroPorID(livro.CategoriaID);
+            const LivroCat = liv?.nome.toLowerCase() ?? "";
+            diasPrazo = cursoCategoria === LivroCat ? 30 : 15;
         }
         const dataLimite = new Date(emprestimo.data_emprestimo);
         dataLimite.setDate(dataLimite.getDate() + diasPrazo);

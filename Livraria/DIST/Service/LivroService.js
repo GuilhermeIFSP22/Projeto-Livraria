@@ -3,23 +3,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LivroService = void 0;
 const Livro_1 = require("../Model/Livro");
 const LivroRepository_1 = require("../Repository/LivroRepository");
-const CategoriaLivro_1 = require("../Model/CategoriaLivro");
 const EstoqueRepository_1 = require("../Repository/EstoqueRepository");
 const EmprestimoRepository_1 = require("../Repository/EmprestimoRepository");
+const CatLivroRepository_1 = require("../Repository/CatLivroRepository");
 class LivroService {
     LivroRepository = LivroRepository_1.LivroRepository.getInstance();
     estoqueRepository = EstoqueRepository_1.EstoqueRepository.getInstance();
     emprestimoRepository = EmprestimoRepository_1.EmprestimoRepository.getInstance();
-    cadastrarLivro(LivroData) {
+    CatLivroRepository = CatLivroRepository_1.CatLivroRepository.getInstance();
+    async cadastrarLivro(LivroData) {
         const { titulo, autor, editora, edicao, isbn, categoria } = LivroData;
         const livrosExistentes = this.LivroRepository.listarLivros();
         const livroDuplicado = livrosExistentes.find(l => l.autor === autor && l.editora === editora && l.edicao === edicao);
         if (livroDuplicado) {
             throw new Error("Já existe um livro cadastrado com essa combinação de autor, editora e edição.");
         }
+        const categoriaInfo = await this.CatLivroRepository.buscarCatLivroPorID(categoria);
+        if (!categoriaInfo) {
+            throw new Error("Categoria inválida.");
+        }
         const novoLivro = new Livro_1.Livro(titulo, autor, editora, edicao, isbn, categoria);
         this.LivroRepository.cadastrarLivro(novoLivro);
-        const CatLivro = CategoriaLivro_1.CategoriaLivro.buscarNomePorID(categoria);
         return {
             id: novoLivro.id,
             titulo: novoLivro.titulo,
@@ -27,13 +31,14 @@ class LivroService {
             editora: novoLivro.editora,
             edicao: novoLivro.edicao,
             isbn: novoLivro.isbn,
-            categoria: CatLivro
+            categoria: categoriaInfo.nome,
         };
     }
-    listarLivros(filtros = {}) {
-        const Livro = this.LivroRepository.listarLivros(filtros);
-        return Livro.map(livro => {
-            const nomeCategoria = CategoriaLivro_1.CategoriaLivro.buscarNomePorID(livro.CategoriaID);
+    async listarLivros(filtros = {}) {
+        const livrosData = this.LivroRepository.listarLivros(filtros);
+        const livrosInstanciados = livrosData.map(l => new Livro_1.Livro(l.titulo, l.autor, l.editora, l.edicao, l.isbn, l.CategoriaID));
+        return Promise.all(livrosInstanciados.map(async (livro) => {
+            const categoria = await this.CatLivroRepository.buscarCatLivroPorID(livro.CategoriaID);
             return {
                 id: livro.id,
                 titulo: livro.titulo,
@@ -41,22 +46,22 @@ class LivroService {
                 editora: livro.editora,
                 edicao: livro.edicao,
                 isbn: livro.isbn,
-                categoria: nomeCategoria || "Categoria desconhecida"
+                categoria: categoria?.nome || "Categoria desconhecida",
             };
-        });
+        }));
     }
-    ConsultarLivroPorISBN(ISBN) {
+    async ConsultarLivroPorISBN(ISBN) {
         const Livro = this.LivroRepository.filtrarLivroPorISBN(ISBN);
         if (!Livro)
             return undefined;
-        const CatLivro = CategoriaLivro_1.CategoriaLivro.buscarNomePorID(Livro.CategoriaID);
+        const categoria = await this.CatLivroRepository.buscarCatLivroPorID(Livro.CategoriaID);
         return {
             titulo: Livro.titulo,
             autor: Livro.autor,
             editora: Livro.editora,
             edicao: Livro.edicao,
             isbn: Livro.isbn,
-            categoria: CatLivro
+            categoria: categoria?.nome
         };
     }
     AtualizarLivroPorISBN(ISBN, titulo, autor, editora, edicao, CategoriaID) {
