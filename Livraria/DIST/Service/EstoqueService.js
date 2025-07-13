@@ -43,9 +43,8 @@ class EstoqueService {
         if (!exemplar) {
             return "Exemplar não encontrado";
         }
-        const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
-            .some(e => e.EstoqueID === Codigo &&
-            (!e.data_entrega || e.data_entrega.getTime?.() === 0));
+        const emprestimoAt = await this.emprestimoRepository.listarEmprestimos();
+        const emprestimoAtivo = emprestimoAt.some(e => e.EstoqueID === Codigo && (!e.data_entrega || e.data_entrega.getTime?.() === 0));
         if (emprestimoAtivo) {
             return "Não é possível remover o exemplar, ele está emprestado";
         }

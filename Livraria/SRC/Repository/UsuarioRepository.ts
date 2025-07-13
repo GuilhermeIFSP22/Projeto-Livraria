@@ -96,4 +96,20 @@ export class UsuarioRepository {
     const resultado = await executarComandoSQL(query, [cpf]);
     return resultado.affectedRows > 0;
   }
+  async filtrarUsuarioporID(id: number): Promise<Usuario | undefined> {
+    const query = `SELECT * FROM Livraria.Usuario WHERE id = ?`;
+    const resultado = await executarComandoSQL(query, [id]);
+    const registro = resultado[0];
+
+    if (!registro) return undefined;
+
+    return new Usuario(
+      registro.nome,
+      registro.cpf,
+      registro.status,
+      registro.cursoID ?? registro.cursoid,
+      registro.CatUsuID ?? registro.catusuid,
+      registro.id
+    );
+  }
 }

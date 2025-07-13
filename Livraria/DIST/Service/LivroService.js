@@ -101,9 +101,8 @@ class LivroService {
             const removido = await this.LivroRepository.removerLivroPorISBN(ISBN);
             return removido ? "Livro removido com sucesso" : "Livro não encontrado";
         }
-        const emprestimoAtivo = this.emprestimoRepository.listarEmprestimos()
-            .some(e => e.EstoqueID === exemplar.id &&
-            (!e.data_entrega || e.data_entrega.getTime?.() === 0));
+        const emprestimoAt = await this.emprestimoRepository.listarEmprestimos();
+        const emprestimoAtivo = emprestimoAt.some(e => e.EstoqueID === exemplar.id && (!e.data_entrega || e.data_entrega.getTime?.() === 0));
         if (emprestimoAtivo) {
             return "Não é possível remover o livro, o exemplar está emprestado";
         }

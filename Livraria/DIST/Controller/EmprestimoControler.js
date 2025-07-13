@@ -5,45 +5,66 @@ exports.listarEmprestimos = listarEmprestimos;
 exports.registrarDevolucao = registrarDevolucao;
 const EmprestimoService_1 = require("../Service/EmprestimoService");
 const emprestimoService = new EmprestimoService_1.EmprestimoService();
-function registrarEmprestimo(req, res) {
+async function registrarEmprestimo(req, res) {
+    console.log("Recebido no controller:", req.body);
     try {
         const { data_emprestimo, CPF, UsuarioID, EstoqueID } = req.body;
-        if (!data_emprestimo || !UsuarioID || !EstoqueID) {
-            res.status(400).json({ mensagem: "Campos obrigatórios: data_emprestimo,CPF, UsuarioID, EstoqueID" });
+        if (!data_emprestimo || !CPF || !UsuarioID || !EstoqueID) {
+            res.status(400).json({ mensagem: "Informações incompletas" });
             return;
         }
-        const novoEmprestimo = emprestimoService.registrarEmprestimo(new Date(data_emprestimo), CPF, UsuarioID, EstoqueID);
-        res.status(201).json({ mensagem: "Empréstimo registrado com sucesso", emprestimo: novoEmprestimo });
+        const data = new Date(data_emprestimo);
+        if (isNaN(data.getTime())) {
+            res.status(400).json({ mensagem: "Data inválida" });
+            return;
+        }
+        const emprestimo = await emprestimoService.registrarEmprestimo(data, CPF, UsuarioID, EstoqueID);
+        res.status(201).json({
+            mensagem: "Empréstimo registrado com sucesso",
+            emprestimo
+        });
     }
     catch (error) {
-        res.status(500).json({ mensagem: error.message || "Erro ao registrar empréstimo" });
+        console.error("Erro no controller registrarEmprestimo:", error);
+        res.status(400).json({ mensagem: error.message || "Erro ao registrar empréstimo." });
     }
 }
-function listarEmprestimos(req, res) {
+async function listarEmprestimos(req, res) {
     try {
-        const lista = emprestimoService.listarEmprestimos();
+        const lista = await emprestimoService.listarEmprestimos();
         res.status(200).json(lista);
     }
     catch (error) {
         res.status(500).json({ mensagem: error.message || "Erro ao listar empréstimos" });
     }
 }
-function registrarDevolucao(req, res) {
+async function registrarDevolucao(req, res) {
     try {
-        const idEmprestimo = Number(req.params.id);
-        const { dataEntrega } = req.body;
+        const { idEmprestimo, dataEntrega } = req.body;
+        if (!idEmprestimo) {
+            res.status(400).json({ mensagem: "Falta o campo idEmprestimo" });
+            return;
+        }
         if (!dataEntrega) {
-            res.status(400).json({ mensagem: "Campo obrigatório: dataEntrega" });
+            res.status(400).json({ mensagem: "Falta o campo dataEntrega" });
             return;
         }
-        const emprestimoAtualizado = emprestimoService.registrarDevolucao(idEmprestimo, new Date(dataEntrega));
+        const dataEntregaObj = new Date(dataEntrega);
+        if (isNaN(dataEntregaObj.getTime())) {
+            res.status(400).json({ mensagem: "Data inválida" });
+            return;
+        }
+        const emprestimoAtualizado = await emprestimoService.registrarDevolucao(idEmprestimo, dataEntregaObj);
         if (!emprestimoAtualizado) {
-            res.status(404).json({ mensagem: "Empréstimo não encontrado" });
+            res.status(404).json({ mensagem: "Empréstimo não encontrado ou não atualizado." });
             return;
         }
-        res.status(200).json({ mensagem: "Devolução registrada com sucesso", emprestimo: emprestimoAtualizado });
+        res.status(200).json({
+            mensagem: "Devolução registrada com sucesso",
+            emprestimo: emprestimoAtualizado,
+        });
     }
     catch (error) {
-        res.status(500).json({ mensagem: error.message || "Erro ao registrar devolução" });
+        res.status(500).json({ mensagem: error.message || "Erro ao registrar devolução." });
     }
 }

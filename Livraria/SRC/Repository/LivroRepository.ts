@@ -147,4 +147,27 @@ export class LivroRepository {
       const resultado = await executarComandoSQL(query, [isbn]);
       return resultado.affectedRows > 0;
     }
+
+    async filtrarLivroPorID(id: number): Promise<Livro | undefined> {
+      const query = `SELECT * FROM Livraria.Livro WHERE id = ?`;
+      const resultado = await executarComandoSQL(query, [id]);
+      const registro = resultado[0];
+      
+      if (!registro) {
+        return undefined;
+      }
+      if (!registro.titulo || !registro.autor) {
+        throw new Error("Informações incompletas"); 
+      }
+
+      return new Livro(
+        registro.titulo,
+        registro.autor,
+        registro.editora,
+        registro.edicao,
+        registro.isbn,
+        registro.CategoriaID,
+        registro.id
+      );
+}
 }

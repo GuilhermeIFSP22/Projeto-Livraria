@@ -74,5 +74,13 @@ class UsuarioRepository {
         const resultado = await (0, mysql_1.executarComandoSQL)(query, [cpf]);
         return resultado.affectedRows > 0;
     }
+    async filtrarUsuarioporID(id) {
+        const query = `SELECT * FROM Livraria.Usuario WHERE id = ?`;
+        const resultado = await (0, mysql_1.executarComandoSQL)(query, [id]);
+        const registro = resultado[0];
+        if (!registro)
+            return undefined;
+        return new Usuario_1.Usuario(registro.nome, registro.cpf, registro.status, registro.cursoID ?? registro.cursoid, registro.CatUsuID ?? registro.catusuid, registro.id);
+    }
 }
 exports.UsuarioRepository = UsuarioRepository;
