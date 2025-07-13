@@ -29,9 +29,9 @@ function ConsultarCategoriaLivro(req, res) {
         res.status(400).json({ mensagem: error.message });
     }
 }
-function ConsultarCurso(req, res) {
+async function ConsultarCurso(req, res) {
     try {
-        const Curso = usuarioService.ConsultarCurso();
+        const Curso = await usuarioService.ConsultarCurso();
         res.status(200).json({
             mensagem: "Sucesso",
             Usuarios: Curso,

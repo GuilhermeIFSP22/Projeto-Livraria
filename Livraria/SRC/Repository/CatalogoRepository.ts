@@ -1,14 +1,14 @@
-import { Curso } from "../Model/Curso";
+import { CursoRepository } from "../Repository/CursoRepository";
 import { CategoriaLivro } from "../Model/CategoriaLivro";
 import { CategoriaUsuario } from "../Model/CategoriaUsuario";
 
 CategoriaLivro.inicializarCategoriaLivro();
 CategoriaUsuario.inicializarCategoriaUsuario();
-Curso.inicializarCursos();
 
 export class CatalogoRepository{
     
     private static instance: CatalogoRepository | null = null;
+    private cursoRepository = CursoRepository.getInstance();
 
     private constructor() {}
 
@@ -27,7 +27,7 @@ export class CatalogoRepository{
         return CategoriaUsuario.listaCatUsu;
       }
 
-      listarCurso () : Curso[] {
-        return Curso.listaCursos;
-      }
+      async listarCurso(): Promise<{ id: number; nome: string }[]> {
+    return await this.cursoRepository.listarCursos();
+    }
 }

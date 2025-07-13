@@ -27,12 +27,12 @@ export function ConsultarCategoriaLivro(req: Request, res: Response) {
         }
     }
 
-export function ConsultarCurso(req: Request, res: Response) {
+export async function ConsultarCurso(req: Request, res: Response) {
         try {
-            const Curso = usuarioService.ConsultarCurso();
+            const Curso = await usuarioService.ConsultarCurso();
             res.status(200).json({
-                mensagem: "Sucesso",
-                Usuarios: Curso,
+            mensagem: "Sucesso",
+            Usuarios: Curso,
             });
         } catch (error: any) {
             res.status(400).json({ mensagem: error.message });

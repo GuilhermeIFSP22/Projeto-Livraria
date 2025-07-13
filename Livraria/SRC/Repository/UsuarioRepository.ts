@@ -51,14 +51,33 @@ export class UsuarioRepository {
   async listarUsuarios(): Promise<Usuario[]> {
     const query = `SELECT * FROM Livraria.Usuario`;
     const resultado = await executarComandoSQL(query, []);
-    return resultado;
-  }
+
+    return resultado.map((registro: any) => new Usuario(
+      registro.nome,
+      registro.cpf,
+      registro.status,
+      registro.cursoID ?? registro.cursoid,
+      registro.CatUsuID ?? registro.catusuid,
+      registro.id
+    ));
+}
 
   async filtrarUsuarioporCPF(cpf: string): Promise<Usuario | undefined> {
     const query = `SELECT * FROM Livraria.Usuario WHERE cpf = ?`;
     const resultado = await executarComandoSQL(query, [cpf]);
-    return resultado[0];
-  }
+    const Registro = resultado[0];
+
+    if (!Registro) return undefined;
+
+    return new Usuario(
+      Registro.nome,
+      Registro.cpf,
+      Registro.status,
+      Registro.cursoID ?? Registro.cursoid,
+      Registro.CatUsuID ?? Registro.catusuid,
+      Registro.id
+    );
+}
 
   async atualizarUsuarioporCPF(usuarioAtualizado: Usuario): Promise<Usuario | undefined> {
   

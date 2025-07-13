@@ -1,8 +1,7 @@
-import { Curso } from "./Curso";
 import { CategoriaUsuario } from "./CategoriaUsuario";
 import { validarCPF } from "../untils/ValidarCPF";
 
-Curso.inicializarCursos();
+
 CategoriaUsuario.inicializarCategoriaUsuario();
 
 export class Usuario{
@@ -18,9 +17,6 @@ export class Usuario{
 
         if (!validarCPF(cpf)) throw new Error("CPF inválido");
 
-        const cursoValido = Curso.buscarNomePorID(CursoID);
-        if (!cursoValido) throw new Error("Curso inválido");
-
         const categoriaValida = CategoriaUsuario.buscarNomePorID(CatUsuID);
         if (!categoriaValida) throw new Error("Categoria inválida");
     
@@ -31,10 +27,6 @@ export class Usuario{
         this.CursoID = CursoID;
         this.CatUsuID = CatUsuID;
     }
-        
-    getNomeCurso(): string {
-        return Curso.buscarNomePorID(this.CursoID) ?? "Curso não encontrado";
-      }
 
     getNomeCategoria(): string {
         return CategoriaUsuario.buscarNomePorID(this.CatUsuID) ?? "Categoria não encontrada";

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsuarioRepository = void 0;
+const Usuario_1 = require("../Model/Usuario");
 const mysql_1 = require("../DataBase/mysql");
 class UsuarioRepository {
     static instance;
@@ -48,12 +49,15 @@ class UsuarioRepository {
     async listarUsuarios() {
         const query = `SELECT * FROM Livraria.Usuario`;
         const resultado = await (0, mysql_1.executarComandoSQL)(query, []);
-        return resultado;
+        return resultado.map((registro) => new Usuario_1.Usuario(registro.nome, registro.cpf, registro.status, registro.cursoID ?? registro.cursoid, registro.CatUsuID ?? registro.catusuid, registro.id));
     }
     async filtrarUsuarioporCPF(cpf) {
         const query = `SELECT * FROM Livraria.Usuario WHERE cpf = ?`;
         const resultado = await (0, mysql_1.executarComandoSQL)(query, [cpf]);
-        return resultado[0];
+        const Registro = resultado[0];
+        if (!Registro)
+            return undefined;
+        return new Usuario_1.Usuario(Registro.nome, Registro.cpf, Registro.status, Registro.cursoID ?? Registro.cursoid, Registro.CatUsuID ?? Registro.catusuid, Registro.id);
     }
     async atualizarUsuarioporCPF(usuarioAtualizado) {
         const query = `
