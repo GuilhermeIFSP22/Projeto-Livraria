@@ -8,14 +8,7 @@ export class UsuarioDTO {
   CursoID: number;
   CatUsuID: number;
 
-  constructor(
-    nome?: string,
-    cpf?: string,
-    status?: "ativo" | "suspenso" | "inativo",
-    CursoID?: number,
-    CatUsuID?: number,
-    id?: number
-  ) {
+  constructor(nome?: string,cpf?: string,status?: "ativo" | "suspenso" | "inativo",CursoID?: number,CatUsuID?: number,id?: number) {
     if (cpf && !validarCPF(cpf)) {
       throw new Error("CPF inválido");
     }

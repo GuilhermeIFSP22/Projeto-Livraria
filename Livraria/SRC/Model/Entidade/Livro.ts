@@ -1,5 +1,3 @@
-import { CategoriaLivro } from "./CategoriaLivro";
-
 export class Livro{
 
     id : number;
