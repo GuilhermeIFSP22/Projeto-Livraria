@@ -25,13 +25,6 @@ class UsuarioRepository {
         CatUsuID INT NOT NULL
       )
     `;
-        try {
-            await (0, mysql_1.executarComandoSQL)(query, []);
-            console.log("Tabela Usuario criada (ou já existia).");
-        }
-        catch (err) {
-            console.error("Erro ao criar a tabela Usuario:", err);
-        }
     }
     async cadastrarUsuario(usuario) {
         const query = `INSERT INTO Livraria.Usuario (nome, cpf, status, cursoID, CatUsuID) VALUES (?, ?, ?, ?, ?)`;

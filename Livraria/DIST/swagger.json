@@ -127,6 +127,57 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"EmprestimoDTO": {
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"data_emprestimo": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"data_devolucao": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"data_entrega": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"dias_atraso": {
+						"type": "number",
+						"format": "double"
+					},
+					"suspensao_ate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"UsuarioID": {
+						"type": "number",
+						"format": "double"
+					},
+					"EstoqueID": {
+						"type": "number",
+						"format": "double"
+					},
+					"CPF": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"data_emprestimo",
+					"data_devolucao",
+					"data_entrega",
+					"dias_atraso",
+					"suspensao_ate",
+					"UsuarioID",
+					"EstoqueID",
+					"CPF"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {}
@@ -919,6 +970,152 @@
 						}
 					}
 				]
+			}
+		},
+		"/Emprestimo": {
+			"post": {
+				"operationId": "RegistrarEmprestimo",
+				"responses": {
+					"201": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BasicResponseDto"
+								}
+							}
+						}
+					},
+					"204": {
+						"description": "No content"
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BasicResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Emprestimo"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/EmprestimoDTO"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "ListarEmprestimos",
+				"responses": {
+					"200": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BasicResponseDto"
+								}
+							}
+						}
+					},
+					"204": {
+						"description": "No content"
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BasicResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Emprestimo"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/Emprestimo/Devolucao": {
+			"put": {
+				"operationId": "RegistrarDevolucao",
+				"responses": {
+					"200": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BasicResponseDto"
+								}
+							}
+						}
+					},
+					"204": {
+						"description": "No content"
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BasicResponseDto"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BasicResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Emprestimo"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"dataEntrega": {
+										"type": "string"
+									},
+									"idEmprestimo": {
+										"type": "number",
+										"format": "double"
+									}
+								},
+								"required": [
+									"dataEntrega",
+									"idEmprestimo"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
 			}
 		}
 	},

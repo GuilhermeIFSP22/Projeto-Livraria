@@ -9,6 +9,8 @@ import { UsuarioController } from './../controller/UsuarioControler';
 import { LivroController } from './../controller/LivroControler';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { EstoqueController } from './../controller/EstoqueControler';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { EmprestimoController } from './../controller/EmprestimoControler';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -60,6 +62,22 @@ const models: TsoaRoute.Models = {
             "quantidade_emprestada": {"dataType":"double","required":true},
             "LivroID": {"dataType":"double","required":true},
             "disponivel": {"dataType":"boolean","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "EmprestimoDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double"},
+            "data_emprestimo": {"dataType":"datetime","required":true},
+            "data_devolucao": {"dataType":"datetime","required":true},
+            "data_entrega": {"dataType":"datetime","required":true},
+            "dias_atraso": {"dataType":"double","required":true},
+            "suspensao_ate": {"dataType":"datetime","required":true},
+            "UsuarioID": {"dataType":"double","required":true},
+            "EstoqueID": {"dataType":"double","required":true},
+            "CPF": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -554,6 +572,101 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'removerExemplarPorCodigo',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsEmprestimoController_registrarEmprestimo: Record<string, TsoaRoute.ParameterSchema> = {
+                emprestimo: {"in":"body","name":"emprestimo","required":true,"ref":"EmprestimoDTO"},
+                fail: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+                success: {"in":"res","name":"201","required":true,"ref":"BasicResponseDto"},
+        };
+        app.post('/Emprestimo',
+            ...(fetchMiddlewares<RequestHandler>(EmprestimoController)),
+            ...(fetchMiddlewares<RequestHandler>(EmprestimoController.prototype.registrarEmprestimo)),
+
+            async function EmprestimoController_registrarEmprestimo(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsEmprestimoController_registrarEmprestimo, request, response });
+
+                const controller = new EmprestimoController();
+
+              await templateService.apiHandler({
+                methodName: 'registrarEmprestimo',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsEmprestimoController_listarEmprestimos: Record<string, TsoaRoute.ParameterSchema> = {
+                fail: {"in":"res","name":"500","required":true,"ref":"BasicResponseDto"},
+                success: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+        };
+        app.get('/Emprestimo',
+            ...(fetchMiddlewares<RequestHandler>(EmprestimoController)),
+            ...(fetchMiddlewares<RequestHandler>(EmprestimoController.prototype.listarEmprestimos)),
+
+            async function EmprestimoController_listarEmprestimos(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsEmprestimoController_listarEmprestimos, request, response });
+
+                const controller = new EmprestimoController();
+
+              await templateService.apiHandler({
+                methodName: 'listarEmprestimos',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsEmprestimoController_registrarDevolucao: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"dataEntrega":{"dataType":"string","required":true},"idEmprestimo":{"dataType":"double","required":true}}},
+                fail: {"in":"res","name":"404","required":true,"ref":"BasicResponseDto"},
+                success: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+        };
+        app.put('/Emprestimo/Devolucao',
+            ...(fetchMiddlewares<RequestHandler>(EmprestimoController)),
+            ...(fetchMiddlewares<RequestHandler>(EmprestimoController.prototype.registrarDevolucao)),
+
+            async function EmprestimoController_registrarDevolucao(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsEmprestimoController_registrarDevolucao, request, response });
+
+                const controller = new EmprestimoController();
+
+              await templateService.apiHandler({
+                methodName: 'registrarDevolucao',
                 controller,
                 response,
                 next,

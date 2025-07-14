@@ -27,13 +27,6 @@ class EmprestimoRepository {
         EstoqueID INT NOT NULL
       )
     `;
-        try {
-            await (0, mysql_1.executarComandoSQL)(query, []);
-            console.log("Tabela Emprestimo criada (ou já existia).");
-        }
-        catch (err) {
-            console.error("Erro ao criar a tabela Emprestimo:", err);
-        }
     }
     async registrarEmprestimo(emprestimo) {
         const query = `
