@@ -1,5 +1,5 @@
 import { CursoRepository } from "../Repository/CursoRepository";
-import { CategoriaLivro } from "../Model/CategoriaLivro";
+import { CategoriaLivro } from "../Model/Entidade/CategoriaLivro";
 import { CatUsuarioRepository } from "./CatUsuarioRepository";
 import { CatLivroRepository } from "./CatLivroRepository";
 

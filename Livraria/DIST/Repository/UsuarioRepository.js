@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsuarioRepository = void 0;
-const Usuario_1 = require("../Model/Usuario");
+const Usuario_1 = require("../Model/Entidade/Usuario");
 const mysql_1 = require("../DataBase/mysql");
 class UsuarioRepository {
     static instance;

@@ -1,4 +1,4 @@
-import { Usuario } from "../Model/Usuario";
+import { Usuario } from "../Model/Entidade/Usuario";
 import { executarComandoSQL } from "../DataBase/mysql";
 
 export class UsuarioRepository {

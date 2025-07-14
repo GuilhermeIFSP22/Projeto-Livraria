@@ -1,8 +1,8 @@
-import { CategoriaUsuario } from "../Model/CategoriaUsuario";
+import { CategoriaUsuario } from "../Model/Entidade/CategoriaUsuario";
 import { CursoRepository } from "../Repository/CursoRepository";
-import { CategoriaLivro } from "../Model/CategoriaLivro";
+import { CategoriaLivro } from "../Model/Entidade/CategoriaLivro";
 import { CatalogoRepository } from "../Repository/CatalogoRepository";
-import { Curso } from "../Model/Curso";
+import { Curso } from "../Model/Entidade/Curso";
 import { CatUsuarioRepository } from "../Repository/CatUsuarioRepository";
 import { CatLivroRepository } from "../Repository/CatLivroRepository";
 

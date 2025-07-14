@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CatalogoService = void 0;
-const CategoriaUsuario_1 = require("../Model/CategoriaUsuario");
+const CategoriaUsuario_1 = require("../Model/Entidade/CategoriaUsuario");
 const CursoRepository_1 = require("../Repository/CursoRepository");
-const CategoriaLivro_1 = require("../Model/CategoriaLivro");
+const CategoriaLivro_1 = require("../Model/Entidade/CategoriaLivro");
 const CatalogoRepository_1 = require("../Repository/CatalogoRepository");
-const Curso_1 = require("../Model/Curso");
+const Curso_1 = require("../Model/Entidade/Curso");
 const CatUsuarioRepository_1 = require("../Repository/CatUsuarioRepository");
 const CatLivroRepository_1 = require("../Repository/CatLivroRepository");
 class CatalogoService {

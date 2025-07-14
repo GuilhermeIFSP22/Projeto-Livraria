@@ -1,4 +1,4 @@
-import { Emprestimo } from "../Model/Emprestimo";
+import { Emprestimo } from "../Model/Entidade/Emprestimo";
 import { executarComandoSQL } from "../DataBase/mysql";
 
 export class EmprestimoRepository {

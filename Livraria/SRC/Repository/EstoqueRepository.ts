@@ -1,4 +1,4 @@
-import { Estoque } from "../Model/Estoque";
+import { Estoque } from "../Model/Entidade/Estoque";
 import { executarComandoSQL } from "../DataBase/mysql";
 
 export class EstoqueRepository{
