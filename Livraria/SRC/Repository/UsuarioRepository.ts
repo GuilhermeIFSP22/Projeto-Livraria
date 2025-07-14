@@ -26,12 +26,6 @@ export class UsuarioRepository {
         CatUsuID INT NOT NULL
       )
     `;
-    try {
-      await executarComandoSQL(query, []);
-      console.log("Tabela Usuario criada (ou já existia).");
-    } catch (err) {
-      console.error("Erro ao criar a tabela Usuario:", err);
-    }
   }
 
   async cadastrarUsuario(usuario: Usuario): Promise<number> {

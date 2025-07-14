@@ -28,12 +28,6 @@ export class EmprestimoRepository {
         EstoqueID INT NOT NULL
       )
     `;
-    try {
-      await executarComandoSQL(query, []);
-      console.log("Tabela Emprestimo criada (ou já existia).");
-    } catch (err) {
-      console.error("Erro ao criar a tabela Emprestimo:", err);
-    }
   }
 
   async registrarEmprestimo(emprestimo: Emprestimo): Promise<number> {

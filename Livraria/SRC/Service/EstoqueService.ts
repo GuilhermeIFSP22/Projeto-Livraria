@@ -57,22 +57,22 @@ export class EstoqueService{
         return await this.EstoqueRepository.atualizarDispoExemplarPorCodigo(Codigo, disponivel);
     }
 
-    async RemoverExemplarPorCodigo(Codigo:number) :Promise<string>{
+    async RemoverExemplarPorCodigo(id:number) :Promise<string>{
 
-             const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(Codigo);
+             const exemplar = this.EstoqueRepository.filtrarExemplarPorCodigo(id);
 
         if (!exemplar) {
             return "Exemplar não encontrado";
         }
 
         const emprestimoAt = await this.emprestimoRepository.listarEmprestimos()
-        const emprestimoAtivo = emprestimoAt.some(e => e.EstoqueID === Codigo && (!e.data_entrega || e.data_entrega.getTime?.() === 0));
+        const emprestimoAtivo = emprestimoAt.some(e => e.EstoqueID === id && (!e.data_entrega || e.data_entrega.getTime?.() === 0));
 
         if (emprestimoAtivo) {
             return "Não é possível remover o exemplar, ele está emprestado";
         }
         
-        const removido = await this.EstoqueRepository.removerUsuarioPorCodigo(Codigo);
+        const removido = await this.EstoqueRepository.removerUsuarioPorCodigo(id);
         return removido ? "Exemplar removido com sucesso" : "Erro ao remover exemplar";
     }
 }
